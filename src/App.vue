@@ -5,81 +5,138 @@
       <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
           <div class="flex">
+            <!-- Logo -->
             <div class="flex-shrink-0 flex items-center">
               <img class="h-8 w-auto" src="/logo.svg" alt="AutomateHub" />
             </div>
+            <!-- Navigation Links -->
             <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
               <router-link
-                v-for="item in navigation"
-                :key="item.name"
-                :to="item.href"
+                to="/"
                 class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900"
-                :class="{ 'border-b-2 border-primary': $route.path === item.href }"
+                :class="{ 'border-b-2 border-indigo-500': $route.path === '/' }"
               >
-                {{ item.name }}
+                Home
+              </router-link>
+              <router-link
+                to="/pricing"
+                class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-gray-900"
+                :class="{ 'border-b-2 border-indigo-500': $route.path === '/pricing' }"
+              >
+                Pricing
               </router-link>
             </div>
           </div>
-          <div class="flex items-center">
-            <template v-if="!isAuthenticated">
+          <!-- Right side -->
+          <div class="hidden sm:ml-6 sm:flex sm:items-center">
+            <template v-if="isAuthenticated">
+              <router-link
+                to="/dashboard"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
+              >
+                Dashboard
+              </router-link>
+              <button
+                @click="logout"
+                class="ml-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50"
+              >
+                Sign out
+              </button>
+            </template>
+            <template v-else>
               <router-link
                 to="/login"
-                class="text-gray-600 hover:text-gray-900 px-3 py-2 rounded-md text-sm font-medium"
+                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-indigo-600 bg-white hover:bg-gray-50"
               >
-                Log in
+                Sign in
               </router-link>
               <router-link
                 to="/register"
-                class="ml-4 bg-primary text-white px-4 py-2 rounded-md text-sm font-medium hover:bg-primary-dark"
+                class="ml-3 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
               >
-                Get Started
+                Sign up
               </router-link>
             </template>
-            <template v-else>
-              <div class="relative ml-3">
-                <button
-                  @click="toggleUserMenu"
-                  class="flex items-center space-x-2 text-gray-700 hover:text-gray-900"
-                >
-                  <img
-                    :src="user.avatar || '/default-avatar.png'"
-                    class="h-8 w-8 rounded-full"
-                    alt="User avatar"
-                  />
-                  <span class="text-sm font-medium">{{ user.name }}</span>
-                </button>
-                <!-- User menu dropdown -->
-                <div
-                  v-if="showUserMenu"
-                  class="absolute right-0 mt-2 w-48 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5"
-                >
-                  <div class="py-1">
-                    <router-link
-                      to="/dashboard"
-                      class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      @click="showUserMenu = false"
-                    >
-                      Dashboard
-                    </router-link>
-                    <router-link
-                      to="/settings"
-                      class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      @click="showUserMenu = false"
-                    >
-                      Settings
-                    </router-link>
-                    <button
-                      @click="logout"
-                      class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
-                      @click="showUserMenu = false"
-                    >
-                      Sign out
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </template>
           </div>
+          <!-- Mobile menu button -->
+          <div class="-mr-2 flex items-center sm:hidden">
+            <button
+              type="button"
+              class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-indigo-500"
+              @click="mobileMenuOpen = !mobileMenuOpen"
+            >
+              <span class="sr-only">Open main menu</span>
+              <svg
+                class="h-6 w-6"
+                :class="{ 'hidden': mobileMenuOpen, 'block': !mobileMenuOpen }"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+              <svg
+                class="h-6 w-6"
+                :class="{ 'block': mobileMenuOpen, 'hidden': !mobileMenuOpen }"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile menu -->
+      <div class="sm:hidden" :class="{ 'block': mobileMenuOpen, 'hidden': !mobileMenuOpen }">
+        <div class="pt-2 pb-3 space-y-1">
+          <router-link
+            to="/"
+            class="block pl-3 pr-4 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+            :class="{ 'bg-gray-50 border-l-4 border-indigo-500': $route.path === '/' }"
+          >
+            Home
+          </router-link>
+          <router-link
+            to="/pricing"
+            class="block pl-3 pr-4 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+            :class="{ 'bg-gray-50 border-l-4 border-indigo-500': $route.path === '/pricing' }"
+          >
+            Pricing
+          </router-link>
+          <template v-if="isAuthenticated">
+            <router-link
+              to="/dashboard"
+              class="block pl-3 pr-4 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+              :class="{ 'bg-gray-50 border-l-4 border-indigo-500': $route.path === '/dashboard' }"
+            >
+              Dashboard
+            </router-link>
+            <button
+              @click="logout"
+              class="block w-full text-left pl-3 pr-4 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+            >
+              Sign out
+            </button>
+          </template>
+          <template v-else>
+            <router-link
+              to="/login"
+              class="block pl-3 pr-4 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+              :class="{ 'bg-gray-50 border-l-4 border-indigo-500': $route.path === '/login' }"
+            >
+              Sign in
+            </router-link>
+            <router-link
+              to="/register"
+              class="block pl-3 pr-4 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50"
+              :class="{ 'bg-gray-50 border-l-4 border-indigo-500': $route.path === '/register' }"
+            >
+              Sign up
+            </router-link>
+          </template>
         </div>
       </div>
     </nav>
@@ -161,31 +218,24 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { useAuthStore } from './stores/auth';
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from './stores/auth'
 
-const router = useRouter();
-const authStore = useAuthStore();
-const showUserMenu = ref(false);
-const isAuthenticated = ref(false);
-const user = ref({});
+const router = useRouter()
+const authStore = useAuthStore()
+const mobileMenuOpen = ref(false)
+const isAuthenticated = ref(false)
 
-const navigation = [
-  { name: 'Home', href: '/' },
-  { name: 'Features', href: '/features' },
-  { name: 'Pricing', href: '/pricing' },
-  { name: 'About', href: '/about' },
-];
+const logout = () => {
+  authStore.logout()
+  isAuthenticated.value = false
+  router.push('/login')
+}
 
-const toggleUserMenu = () => {
-  showUserMenu.value = !showUserMenu.value;
-};
-
-const logout = async () => {
-  await authStore.logout();
-  router.push('/login');
-};
+onMounted(() => {
+  isAuthenticated.value = !!localStorage.getItem('token')
+})
 </script>
 
 <style>
