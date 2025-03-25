@@ -1,38 +1,87 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import Home from '../views/Home.vue';
-import Pricing from '../views/Pricing.vue';
-import Dashboard from '../views/Dashboard.vue';
-import Login from '../views/Login.vue';
-import Register from '../views/Register.vue';
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
       path: '/',
-      name: 'home',
-      component: Home
-    },
-    {
-      path: '/pricing',
-      name: 'pricing',
-      component: Pricing
-    },
-    {
-      path: '/dashboard',
-      name: 'dashboard',
-      component: Dashboard,
-      meta: { requiresAuth: true }
+      name: 'Home',
+      component: () => import('../views/Home.vue')
     },
     {
       path: '/login',
-      name: 'login',
-      component: Login
+      name: 'Login',
+      component: () => import('../views/Login.vue')
     },
     {
       path: '/register',
-      name: 'register',
-      component: Register
+      name: 'Register',
+      component: () => import('../views/Register.vue')
+    },
+    {
+      path: '/product',
+      name: 'Product',
+      component: () => import('../views/Product.vue')
+    },
+    {
+      path: '/features',
+      name: 'Features',
+      component: () => import('../views/Features.vue')
+    },
+    {
+      path: '/pricing',
+      name: 'Pricing',
+      component: () => import('../views/Pricing.vue')
+    },
+    {
+      path: '/security',
+      name: 'Security',
+      component: () => import('../views/Security.vue')
+    },
+    {
+      path: '/about',
+      name: 'About',
+      component: () => import('../views/About.vue')
+    },
+    {
+      path: '/blog',
+      name: 'Blog',
+      component: () => import('../views/Blog.vue')
+    },
+    {
+      path: '/careers',
+      name: 'Careers',
+      component: () => import('../views/Careers.vue')
+    },
+    {
+      path: '/documentation',
+      name: 'Documentation',
+      component: () => import('../views/Documentation.vue')
+    },
+    {
+      path: '/api-reference',
+      name: 'APIReference',
+      component: () => import('../views/APIReference.vue')
+    },
+    {
+      path: '/community',
+      name: 'Community',
+      component: () => import('../views/Community.vue')
+    },
+    {
+      path: '/privacy',
+      name: 'Privacy',
+      component: () => import('../views/Privacy.vue')
+    },
+    {
+      path: '/terms',
+      name: 'Terms',
+      component: () => import('../views/Terms.vue')
+    },
+    {
+      path: '/contact',
+      name: 'Contact',
+      component: () => import('../views/Contact.vue')
     }
   ]
 });
