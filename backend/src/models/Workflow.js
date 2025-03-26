@@ -1,26 +1,23 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const actionSchema = new mongoose.Schema({
   type: {
     type: String,
     required: true,
-    enum: ['http', 'email', 'slack', 'database', 'custom']
-  },
-  config: {
-    type: mongoose.Schema.Types.Mixed,
-    required: true
-  },
-  order: {
-    type: Number,
-    required: true
-  }
-});
-
-const triggerSchema = new mongoose.Schema({
-  type: {
-    type: String,
-    required: true,
-    enum: ['webhook', 'schedule', 'event', 'manual']
+    enum: [
+      // AI Actions
+      'text_generation', 'image_generation', 'text_analysis',
+      'sentiment_analysis', 'document_processing', 'translation',
+      'summarization', 'classification',
+      // Data Processing Actions
+      'data_transformation', 'data_validation', 'data_enrichment',
+      // Communication Actions
+      'email', 'slack', 'webhook', 'sms', 'push_notification',
+      // Integration Actions
+      'api_request', 'database_operation', 'file_operation', 'queue_message',
+      // System Actions
+      'script', 'function', 'shell_command'
+    ]
   },
   config: {
     type: mongoose.Schema.Types.Mixed,
@@ -38,41 +35,59 @@ const workflowSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
-  owner: {
+  createdBy: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
   },
-  trigger: {
-    type: triggerSchema,
-    required: true
-  },
-  actions: [actionSchema],
   status: {
     type: String,
-    enum: ['draft', 'active', 'inactive', 'archived'],
+    enum: ['active', 'inactive', 'draft'],
     default: 'draft'
   },
-  lastRun: {
-    type: Date
+  triggerType: {
+    type: String,
+    required: true,
+    enum: [
+      'manual',
+      'schedule',
+      'webhook',
+      'event',
+      'file_change',
+      'email_received',
+      'database_change',
+      'api_response',
+      'form_submission',
+      'message_queue'
+    ]
   },
-  nextRun: {
-    type: Date
+  triggerConfig: {
+    type: mongoose.Schema.Types.Mixed,
+    required: true,
+    default: {}
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
+  actions: [actionSchema],
+  lastRun: Date,
+  nextRun: Date,
+  successCount: {
+    type: Number,
+    default: 0
   },
-  updatedAt: {
-    type: Date,
-    default: Date.now
+  failureCount: {
+    type: Number,
+    default: 0
+  },
+  averageExecutionTime: {
+    type: Number,
+    default: 0
   }
+}, {
+  timestamps: true
 });
 
-// Update the updatedAt timestamp before saving
-workflowSchema.pre('save', function(next) {
-  this.updatedAt = Date.now();
-  next();
-});
+// Indexes for better query performance
+workflowSchema.index({ createdBy: 1, status: 1 });
+workflowSchema.index({ triggerType: 1 });
+workflowSchema.index({ nextRun: 1 }, { sparse: true });
 
-module.exports = mongoose.model('Workflow', workflowSchema); 
+export default mongoose.model('Workflow', workflowSchema); 
