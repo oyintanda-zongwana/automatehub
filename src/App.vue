@@ -7,7 +7,9 @@
           <div class="flex">
             <!-- Logo -->
             <div class="flex-shrink-0 flex items-center">
-              <img class="h-8 w-auto" src="/logo.svg" alt="AutomateHub" />
+              <router-link to="/" class="text-2xl font-bold text-indigo-600">
+                AutomateHub
+              </router-link>
             </div>
             <!-- Navigation Links -->
             <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
@@ -218,23 +220,23 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from './stores/auth'
 
 const router = useRouter()
 const authStore = useAuthStore()
 const mobileMenuOpen = ref(false)
-const isAuthenticated = ref(false)
 
-const logout = () => {
-  authStore.logout()
-  isAuthenticated.value = false
-  router.push('/login')
+const isAuthenticated = computed(() => authStore.isAuthenticated)
+
+const logout = async () => {
+  await authStore.logout()
+  router.push('/')
 }
 
 onMounted(() => {
-  isAuthenticated.value = !!localStorage.getItem('token')
+  authStore.initializeAuth()
 })
 </script>
 

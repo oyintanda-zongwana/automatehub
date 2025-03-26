@@ -1,97 +1,121 @@
 import { createRouter, createWebHistory } from 'vue-router';
+import { useAuthStore } from '../stores/auth';
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
       path: '/',
-      name: 'Home',
+      name: 'home',
       component: () => import('../views/Home.vue')
     },
     {
+      path: '/dashboard',
+      name: 'dashboard',
+      component: () => import('../views/Dashboard.vue'),
+      meta: { requiresAuth: true }
+    },
+    {
       path: '/login',
-      name: 'Login',
-      component: () => import('../views/Login.vue')
+      name: 'login',
+      component: () => import('../views/Login.vue'),
+      meta: { requiresGuest: true }
     },
     {
       path: '/register',
-      name: 'Register',
-      component: () => import('../views/Register.vue')
+      name: 'register',
+      component: () => import('../views/Register.vue'),
+      meta: { requiresGuest: true }
+    },
+    {
+      path: '/forgot-password',
+      name: 'forgot-password',
+      component: () => import('../views/ForgotPassword.vue'),
+      meta: { requiresGuest: true }
+    },
+    {
+      path: '/reset-password',
+      name: 'reset-password',
+      component: () => import('../views/ResetPassword.vue'),
+      meta: { requiresGuest: true }
     },
     {
       path: '/product',
-      name: 'Product',
+      name: 'product',
       component: () => import('../views/Product.vue')
     },
     {
       path: '/features',
-      name: 'Features',
+      name: 'features',
       component: () => import('../views/Features.vue')
     },
     {
       path: '/pricing',
-      name: 'Pricing',
+      name: 'pricing',
       component: () => import('../views/Pricing.vue')
     },
     {
       path: '/security',
-      name: 'Security',
+      name: 'security',
       component: () => import('../views/Security.vue')
     },
     {
       path: '/about',
-      name: 'About',
+      name: 'about',
       component: () => import('../views/About.vue')
     },
     {
       path: '/blog',
-      name: 'Blog',
+      name: 'blog',
       component: () => import('../views/Blog.vue')
     },
     {
       path: '/careers',
-      name: 'Careers',
+      name: 'careers',
       component: () => import('../views/Careers.vue')
     },
     {
       path: '/documentation',
-      name: 'Documentation',
+      name: 'documentation',
       component: () => import('../views/Documentation.vue')
     },
     {
       path: '/api-reference',
-      name: 'APIReference',
+      name: 'api-reference',
       component: () => import('../views/APIReference.vue')
     },
     {
       path: '/community',
-      name: 'Community',
+      name: 'community',
       component: () => import('../views/Community.vue')
     },
     {
       path: '/privacy',
-      name: 'Privacy',
+      name: 'privacy',
       component: () => import('../views/Privacy.vue')
     },
     {
       path: '/terms',
-      name: 'Terms',
+      name: 'terms',
       component: () => import('../views/Terms.vue')
     },
     {
       path: '/contact',
-      name: 'Contact',
+      name: 'contact',
       component: () => import('../views/Contact.vue')
     }
   ]
 });
 
-// Navigation guard for protected routes
-router.beforeEach((to, from, next) => {
-  const isAuthenticated = localStorage.getItem('token');
-  
+// Navigation guard
+router.beforeEach(async (to, from, next) => {
+  const authStore = useAuthStore();
+  const isAuthenticated = await authStore.checkAuth();
+
   if (to.meta.requiresAuth && !isAuthenticated) {
-    next('/login');
+    next({ name: 'login', query: { redirect: to.fullPath } });
+  } else if (to.meta.requiresGuest && isAuthenticated) {
+    next({ name: 'dashboard' });
   } else {
     next();
   }

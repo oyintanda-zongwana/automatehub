@@ -59,9 +59,12 @@
             </div>
 
             <div class="text-sm">
-              <a href="#" class="font-medium text-indigo-600 hover:text-indigo-500">
+              <router-link
+                to="/forgot-password"
+                class="font-medium text-indigo-600 hover:text-indigo-500"
+              >
                 Forgot your password?
-              </a>
+              </router-link>
             </div>
           </div>
 
@@ -71,11 +74,18 @@
               :disabled="loading"
               class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
             >
-              <span v-if="loading">Signing in...</span>
-              <span v-else>Sign in</span>
+              {{ loading ? 'Signing in...' : 'Sign in' }}
             </button>
           </div>
         </form>
+
+        <div v-if="error" class="mt-4 text-sm text-red-600">
+          {{ error }}
+        </div>
+
+        <div v-if="route.query.message" class="mt-4 text-sm text-green-600">
+          {{ route.query.message }}
+        </div>
 
         <div class="mt-6">
           <div class="relative">
@@ -129,10 +139,12 @@
 
 <script setup>
 import { ref, reactive } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRouter, useRoute } from 'vue-router';
+import { useAuthStore } from '../stores/auth';
 
 const router = useRouter();
-const loading = ref(false);
+const route = useRoute();
+const authStore = useAuthStore();
 
 const form = reactive({
   email: '',
@@ -140,17 +152,26 @@ const form = reactive({
   rememberMe: false
 });
 
-async function handleSubmit() {
-  loading.value = true;
+const loading = ref(false);
+const error = ref('');
+
+const handleSubmit = async () => {
   try {
-    // TODO: Implement actual login logic
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulated API call
-    localStorage.setItem('token', 'dummy-token');
-    router.push('/dashboard');
-  } catch (error) {
-    console.error('Login failed:', error);
+    loading.value = true;
+    error.value = '';
+    
+    await authStore.login({
+      email: form.email,
+      password: form.password
+    });
+    
+    // Redirect to the original destination or dashboard
+    const redirectPath = route.query.redirect || '/dashboard';
+    router.push(redirectPath);
+  } catch (err) {
+    error.value = err.message || 'Failed to sign in. Please try again.';
   } finally {
     loading.value = false;
   }
-}
+};
 </script> 

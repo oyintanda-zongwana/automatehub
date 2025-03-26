@@ -101,11 +101,14 @@
               :disabled="loading"
               class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
             >
-              <span v-if="loading">Creating account...</span>
-              <span v-else>Create account</span>
+              {{ loading ? 'Creating account...' : 'Create account' }}
             </button>
           </div>
         </form>
+
+        <div v-if="error" class="mt-4 text-sm text-red-600">
+          {{ error }}
+        </div>
 
         <div class="mt-6">
           <div class="relative">
@@ -160,9 +163,10 @@
 <script setup>
 import { ref, reactive } from 'vue';
 import { useRouter } from 'vue-router';
+import { useAuthStore } from '../stores/auth';
 
 const router = useRouter();
-const loading = ref(false);
+const authStore = useAuthStore();
 
 const form = reactive({
   name: '',
@@ -172,22 +176,25 @@ const form = reactive({
   acceptTerms: false
 });
 
-async function handleSubmit() {
-  if (form.password !== form.confirmPassword) {
-    alert('Passwords do not match');
-    return;
-  }
+const loading = ref(false);
+const error = ref('');
 
-  loading.value = true;
+const handleSubmit = async () => {
   try {
-    // TODO: Implement actual registration logic
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulated API call
-    localStorage.setItem('token', 'dummy-token');
+    loading.value = true;
+    error.value = '';
+
+    // Validate passwords match
+    if (form.password !== form.confirmPassword) {
+      throw new Error('Passwords do not match');
+    }
+
+    await authStore.register(form.name, form.email, form.password);
     router.push('/dashboard');
-  } catch (error) {
-    console.error('Registration failed:', error);
+  } catch (err) {
+    error.value = err.message || 'Failed to create account. Please try again.';
   } finally {
     loading.value = false;
   }
-}
+};
 </script> 

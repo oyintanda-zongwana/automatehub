@@ -1,100 +1,115 @@
 <template>
   <div class="min-h-screen bg-gray-100">
-    <div class="py-6">
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-        <h1 class="text-2xl font-semibold text-gray-900">Dashboard</h1>
+    <div class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      <!-- Welcome Section -->
+      <div class="px-4 py-5 sm:px-0">
+        <h1 class="text-3xl font-bold text-gray-900">Welcome, {{ user?.name }}</h1>
+        <p class="mt-2 text-sm text-gray-600">Manage your workflows and monitor their execution.</p>
       </div>
 
-      <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
-        <!-- Stats -->
-        <div class="mt-8">
-          <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            <div class="bg-white overflow-hidden shadow rounded-lg">
-              <div class="p-5">
-                <div class="flex items-center">
-                  <div class="flex-shrink-0">
-                    <svg class="h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
-                  </div>
-                  <div class="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt class="text-sm font-medium text-gray-500 truncate">Active Automations</dt>
-                      <dd class="flex items-baseline">
-                        <div class="text-2xl font-semibold text-gray-900">12</div>
-                      </dd>
-                    </dl>
-                  </div>
-                </div>
+      <!-- Stats Section -->
+      <div class="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+          <div class="p-5">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
               </div>
-            </div>
-
-            <div class="bg-white overflow-hidden shadow rounded-lg">
-              <div class="p-5">
-                <div class="flex items-center">
-                  <div class="flex-shrink-0">
-                    <svg class="h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                  </div>
-                  <div class="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt class="text-sm font-medium text-gray-500 truncate">Time Saved</dt>
-                      <dd class="flex items-baseline">
-                        <div class="text-2xl font-semibold text-gray-900">24h</div>
-                      </dd>
-                    </dl>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            <div class="bg-white overflow-hidden shadow rounded-lg">
-              <div class="p-5">
-                <div class="flex items-center">
-                  <div class="flex-shrink-0">
-                    <svg class="h-6 w-6 text-gray-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                    </svg>
-                  </div>
-                  <div class="ml-5 w-0 flex-1">
-                    <dl>
-                      <dt class="text-sm font-medium text-gray-500 truncate">Success Rate</dt>
-                      <dd class="flex items-baseline">
-                        <div class="text-2xl font-semibold text-gray-900">98%</div>
-                      </dd>
-                    </dl>
-                  </div>
-                </div>
+              <div class="ml-5 w-0 flex-1">
+                <dl>
+                  <dt class="text-sm font-medium text-gray-500 truncate">Active Workflows</dt>
+                  <dd class="text-lg font-medium text-gray-900">0</dd>
+                </dl>
               </div>
             </div>
           </div>
         </div>
 
-        <!-- Recent Activity -->
-        <div class="mt-8">
-          <div class="bg-white shadow overflow-hidden sm:rounded-md">
-            <div class="px-4 py-5 sm:px-6">
-              <h3 class="text-lg leading-6 font-medium text-gray-900">Recent Activity</h3>
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+          <div class="p-5">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                </svg>
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dl>
+                  <dt class="text-sm font-medium text-gray-500 truncate">Total Executions</dt>
+                  <dd class="text-lg font-medium text-gray-900">0</dd>
+                </dl>
+              </div>
             </div>
-            <ul class="divide-y divide-gray-200">
-              <li v-for="activity in recentActivity" :key="activity.id" class="px-4 py-4 sm:px-6">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center">
-                    <div class="flex-shrink-0">
-                      <component :is="activity.icon" class="h-5 w-5 text-gray-400" />
-                    </div>
-                    <div class="ml-3">
-                      <p class="text-sm font-medium text-gray-900">{{ activity.title }}</p>
-                      <p class="text-sm text-gray-500">{{ activity.description }}</p>
-                    </div>
-                  </div>
-                  <div class="ml-2 flex-shrink-0 flex">
-                    <p class="text-sm text-gray-500">{{ activity.time }}</p>
-                  </div>
-                </div>
-              </li>
-            </ul>
+          </div>
+        </div>
+
+        <div class="bg-white overflow-hidden shadow rounded-lg">
+          <div class="p-5">
+            <div class="flex items-center">
+              <div class="flex-shrink-0">
+                <svg class="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <div class="ml-5 w-0 flex-1">
+                <dl>
+                  <dt class="text-sm font-medium text-gray-500 truncate">Success Rate</dt>
+                  <dd class="text-lg font-medium text-gray-900">0%</dd>
+                </dl>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent Workflows Section -->
+      <div class="mt-8">
+        <div class="sm:flex sm:items-center">
+          <div class="sm:flex-auto">
+            <h2 class="text-xl font-semibold text-gray-900">Recent Workflows</h2>
+            <p class="mt-2 text-sm text-gray-700">A list of your most recent workflows and their execution status.</p>
+          </div>
+          <div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
+            <button
+              type="button"
+              class="inline-flex items-center justify-center rounded-md border border-transparent bg-indigo-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 sm:w-auto"
+            >
+              Create Workflow
+            </button>
+          </div>
+        </div>
+        <div class="mt-8 flex flex-col">
+          <div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
+            <div class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8">
+              <div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg">
+                <table class="min-w-full divide-y divide-gray-300">
+                  <thead class="bg-gray-50">
+                    <tr>
+                      <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-900 sm:pl-6">Name</th>
+                      <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Status</th>
+                      <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Last Run</th>
+                      <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-gray-900">Next Run</th>
+                      <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                        <span class="sr-only">Actions</span>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-200 bg-white">
+                    <tr>
+                      <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-gray-900 sm:pl-6">No workflows yet</td>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">-</td>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">-</td>
+                      <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">-</td>
+                      <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                        <button class="text-indigo-600 hover:text-indigo-900">Create one</button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -103,42 +118,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-import {
-  BoltIcon,
-  CheckCircleIcon,
-  ExclamationCircleIcon,
-  ClockIcon
-} from '@heroicons/vue/24/outline';
+import { useAuthStore } from '../stores/auth';
+import { storeToRefs } from 'pinia';
 
-const recentActivity = ref([
-  {
-    id: 1,
-    title: 'Data Sync Completed',
-    description: 'Successfully synced 150 records from CRM',
-    time: '2 minutes ago',
-    icon: CheckCircleIcon
-  },
-  {
-    id: 2,
-    title: 'Email Campaign Started',
-    description: 'Bulk email campaign initiated for 500 subscribers',
-    time: '15 minutes ago',
-    icon: BoltIcon
-  },
-  {
-    id: 3,
-    title: 'Task Reminder',
-    description: 'Scheduled reminder for team meeting',
-    time: '1 hour ago',
-    icon: ClockIcon
-  },
-  {
-    id: 4,
-    title: 'Error Detected',
-    description: 'Failed to process 3 records in data import',
-    time: '2 hours ago',
-    icon: ExclamationCircleIcon
-  }
-]);
+const authStore = useAuthStore();
+const { user } = storeToRefs(authStore);
 </script> 
