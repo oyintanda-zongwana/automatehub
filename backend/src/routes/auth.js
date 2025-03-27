@@ -1,9 +1,10 @@
-const express = require('express');
+import express from 'express';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import User from '../models/User.js';
+import { auth } from '../middleware/auth.js';
+
 const router = express.Router();
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-const auth = require('../middleware/auth');
 
 // Register
 router.post('/register', async (req, res) => {
@@ -27,7 +28,7 @@ router.post('/register', async (req, res) => {
     await user.save();
 
     // Generate token
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: '7d'
     });
 
@@ -48,25 +49,29 @@ router.post('/register', async (req, res) => {
 // Login
 router.post('/login', async (req, res) => {
   try {
+    console.log('Login request received:', req.body);
     const { email, password } = req.body;
 
     // Find user
     const user = await User.findOne({ email });
     if (!user) {
+      console.log('User not found:', email);
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
     // Check password
     const isMatch = await user.comparePassword(password);
+    console.log('Password match:', isMatch);
     if (!isMatch) {
       return res.status(401).json({ error: 'Invalid credentials' });
     }
 
     // Generate token
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
       expiresIn: '7d'
     });
 
+    console.log('Login successful for user:', email);
     res.json({
       user: {
         id: user._id,
@@ -77,6 +82,7 @@ router.post('/login', async (req, res) => {
       token
     });
   } catch (error) {
+    console.error('Login error:', error);
     res.status(400).json({ error: error.message });
   }
 });
@@ -100,4 +106,4 @@ router.post('/logout', auth, async (req, res) => {
   res.json({ message: 'Logged out successfully' });
 });
 
-module.exports = router; 
+export default router; 
