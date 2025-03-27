@@ -13,20 +13,38 @@
             </div>
             <!-- Navigation Links -->
             <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
-              <router-link
-                to="/"
-                class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900"
-                :class="{ 'border-b-2 border-indigo-500': $route.path === '/' }"
-              >
-                Home
-              </router-link>
-              <router-link
-                to="/pricing"
-                class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-gray-900"
-                :class="{ 'border-b-2 border-indigo-500': $route.path === '/pricing' }"
-              >
-                Pricing
-              </router-link>
+              <template v-if="isAuthenticated">
+                <router-link
+                  to="/dashboard"
+                  class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900"
+                  :class="{ 'border-b-2 border-indigo-500': $route.path === '/dashboard' }"
+                >
+                  Dashboard
+                </router-link>
+                <router-link
+                  to="/workflows/create"
+                  class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-gray-900"
+                  :class="{ 'border-b-2 border-indigo-500': $route.path === '/workflows/create' }"
+                >
+                  Create Workflow
+                </router-link>
+              </template>
+              <template v-else>
+                <router-link
+                  to="/"
+                  class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-900"
+                  :class="{ 'border-b-2 border-indigo-500': $route.path === '/' }"
+                >
+                  Home
+                </router-link>
+                <router-link
+                  to="/pricing"
+                  class="inline-flex items-center px-1 pt-1 text-sm font-medium text-gray-500 hover:text-gray-900"
+                  :class="{ 'border-b-2 border-indigo-500': $route.path === '/pricing' }"
+                >
+                  Pricing
+                </router-link>
+              </template>
             </div>
           </div>
           <!-- Right side -->

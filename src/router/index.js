@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 
 // Lazy-loaded components
+const Home = () => import('../views/Home.vue');
 const Login = () => import('../views/Login.vue');
 const Register = () => import('../views/Register.vue');
 const ForgotPassword = () => import('../views/ForgotPassword.vue');
@@ -12,7 +13,8 @@ const CreateWorkflow = () => import('../views/CreateWorkflow.vue');
 const routes = [
   {
     path: '/',
-    redirect: '/dashboard'
+    name: 'Home',
+    component: Home
   },
   {
     path: '/login',
