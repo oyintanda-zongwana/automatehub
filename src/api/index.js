@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3000/api',
+  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
   headers: {
     'Content-Type': 'application/json'
   }
@@ -58,7 +58,35 @@ export const workspaceApi = {
   
   // Remove member from workspace
   removeMember: (workspaceId, memberId) => 
-    api.delete(`/workspaces/${workspaceId}/members/${memberId}`)
+    api.delete(`/workspaces/${workspaceId}/members/${memberId}`),
+  
+  // Update member role
+  updateMemberRole: (workspaceId, memberId, role) => 
+    api.patch(`/workspaces/${workspaceId}/members/${memberId}`, { role })
 };
 
-export default api; 
+// Workflow endpoints
+export const workflowApi = {
+  // Get all workflows
+  getWorkflows: () => api.get('/workflows'),
+  
+  // Get a specific workflow
+  getWorkflow: (id) => api.get(`/workflows/${id}`),
+  
+  // Create a new workflow
+  createWorkflow: (data) => api.post('/workflows', data),
+  
+  // Update a workflow
+  updateWorkflow: (id, data) => api.patch(`/workflows/${id}`, data),
+  
+  // Delete a workflow
+  deleteWorkflow: (id) => api.delete(`/workflows/${id}`),
+  
+  // Execute a workflow
+  executeWorkflow: (id) => api.post(`/workflows/${id}/execute`),
+  
+  // Toggle workflow status
+  toggleWorkflow: (id) => api.patch(`/workflows/${id}/toggle`)
+};
+
+export default api;

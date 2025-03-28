@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import api from '../api';
+import { workflowApi } from '../api';
 
 export const useWorkflowStore = defineStore('workflow', {
   state: () => ({
@@ -23,7 +23,7 @@ export const useWorkflowStore = defineStore('workflow', {
     async fetchWorkflows() {
       try {
         this.loading = true;
-        const response = await api.get('/workflows');
+        const response = await workflowApi.getWorkflows();
         this.workflows = response.data;
         return this.workflows;
       } catch (error) {
@@ -37,7 +37,7 @@ export const useWorkflowStore = defineStore('workflow', {
     async fetchWorkflow(id) {
       try {
         this.loading = true;
-        const response = await api.get(`/workflows/${id}`);
+        const response = await workflowApi.getWorkflow(id);
         this.currentWorkflow = response.data;
         return this.currentWorkflow;
       } catch (error) {
@@ -51,7 +51,7 @@ export const useWorkflowStore = defineStore('workflow', {
     async createWorkflow(workflowData) {
       try {
         this.loading = true;
-        const response = await api.post('/workflows', workflowData);
+        const response = await workflowApi.createWorkflow(workflowData);
         this.workflows.push(response.data);
         return response.data;
       } catch (error) {
@@ -65,7 +65,7 @@ export const useWorkflowStore = defineStore('workflow', {
     async updateWorkflow(id, workflowData) {
       try {
         this.loading = true;
-        const response = await api.put(`/workflows/${id}`, workflowData);
+        const response = await workflowApi.updateWorkflow(id, workflowData);
         const index = this.workflows.findIndex(w => w._id === id);
         if (index !== -1) {
           this.workflows[index] = response.data;
@@ -85,7 +85,7 @@ export const useWorkflowStore = defineStore('workflow', {
     async deleteWorkflow(id) {
       try {
         this.loading = true;
-        await api.delete(`/workflows/${id}`);
+        await workflowApi.deleteWorkflow(id);
         this.workflows = this.workflows.filter(w => w._id !== id);
         if (this.currentWorkflow?._id === id) {
           this.currentWorkflow = null;
@@ -101,7 +101,7 @@ export const useWorkflowStore = defineStore('workflow', {
     async executeWorkflow(id) {
       try {
         this.loading = true;
-        await api.post(`/workflows/${id}/execute`);
+        await workflowApi.executeWorkflow(id);
         await this.fetchWorkflow(id); // Refresh the workflow data
       } catch (error) {
         this.error = error.response?.data?.message || 'Failed to execute workflow';
@@ -114,7 +114,7 @@ export const useWorkflowStore = defineStore('workflow', {
     async toggleWorkflow(id) {
       try {
         this.loading = true;
-        const response = await api.patch(`/workflows/${id}/toggle`);
+        const response = await workflowApi.toggleWorkflow(id);
         const index = this.workflows.findIndex(w => w._id === id);
         if (index !== -1) {
           this.workflows[index] = response.data;
