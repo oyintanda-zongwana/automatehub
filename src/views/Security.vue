@@ -98,19 +98,8 @@
             We maintain the highest security standards in the industry
           </p>
         </div>
-        <div class="mt-10 grid grid-cols-2 gap-8 md:grid-cols-4">
-          <div class="col-span-1 flex justify-center">
-            <img class="h-12" src="/certifications/soc2.png" alt="SOC 2">
-          </div>
-          <div class="col-span-1 flex justify-center">
-            <img class="h-12" src="/certifications/gdpr.png" alt="GDPR">
-          </div>
-          <div class="col-span-1 flex justify-center">
-            <img class="h-12" src="/certifications/iso27001.png" alt="ISO 27001">
-          </div>
-          <div class="col-span-1 flex justify-center">
-            <img class="h-12" src="/certifications/hipaa.png" alt="HIPAA">
-          </div>
+        <div class="mt-10 text-center text-gray-500">
+          <p>Our security certifications are currently being updated. Please check back soon.</p>
         </div>
       </div>
     </div>
