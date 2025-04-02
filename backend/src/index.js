@@ -28,17 +28,26 @@ const mongooseOptions = {
   useUnifiedTopology: true,
   serverSelectionTimeoutMS: 5000,
   socketTimeoutMS: 45000,
+  retryWrites: true,
+  w: 'majority',
+  retryReads: true
 };
 
-// Connect to MongoDB
-mongoose.connect(process.env.MONGODB_URI, mongooseOptions)
-  .then(() => {
+// Connect to MongoDB with retry logic
+const connectWithRetry = async () => {
+  try {
+    console.log('Attempting to connect to MongoDB...');
+    await mongoose.connect(process.env.MONGODB_URI, mongooseOptions);
     console.log('Connected to MongoDB successfully');
-  })
-  .catch(err => {
+  } catch (err) {
     console.error('MongoDB connection error:', err);
-    process.exit(1); // Exit the process if MongoDB connection fails
-  });
+    console.log('Retrying connection in 5 seconds...');
+    setTimeout(connectWithRetry, 5000);
+  }
+};
+
+// Start MongoDB connection
+connectWithRetry();
 
 // Handle MongoDB connection errors after initial connection
 mongoose.connection.on('error', err => {
@@ -46,7 +55,8 @@ mongoose.connection.on('error', err => {
 });
 
 mongoose.connection.on('disconnected', () => {
-  console.log('MongoDB disconnected');
+  console.log('MongoDB disconnected. Attempting to reconnect...');
+  connectWithRetry();
 });
 
 // Routes
@@ -55,16 +65,36 @@ app.use('/api/workflows', workflowRoutes);
 
 // Health check endpoint for Render
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'ok' });
+  const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+  res.status(200).json({ 
+    status: 'ok',
+    database: dbStatus,
+    timestamp: new Date().toISOString()
+  });
 });
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong!' });
+  console.error('Error:', err.stack);
+  res.status(500).json({ 
+    message: 'Something went wrong!',
+    error: process.env.NODE_ENV === 'development' ? err.message : undefined
+  });
+});
+
+// Handle uncaught exceptions
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+  process.exit(1);
+});
+
+process.on('unhandledRejection', (err) => {
+  console.error('Unhandled Rejection:', err);
+  process.exit(1);
 });
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV}`);
 }); 
