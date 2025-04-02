@@ -23,9 +23,11 @@ Thumbs.db
 logs/
 *.log
 
-# Test coverage
-coverage/
-
-# Build output
+# Build
 dist/
 build/
+coverage/
+
+# Temporary files
+tmp/
+temp/
