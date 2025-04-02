@@ -26,17 +26,24 @@ app.use(express.static(path.join(__dirname, '../public')));
 const mongooseOptions = {
   useNewUrlParser: true,
   useUnifiedTopology: true,
-  serverSelectionTimeoutMS: 5000,
+  serverSelectionTimeoutMS: 10000,
   socketTimeoutMS: 45000,
   retryWrites: true,
   w: 'majority',
-  retryReads: true
+  retryReads: true,
+  ssl: true,
+  tls: true,
+  tlsAllowInvalidCertificates: false,
+  tlsAllowInvalidHostnames: false,
+  maxPoolSize: 10,
+  minPoolSize: 5
 };
 
 // Connect to MongoDB with retry logic
 const connectWithRetry = async () => {
   try {
     console.log('Attempting to connect to MongoDB...');
+    console.log('MongoDB URI:', process.env.MONGODB_URI.replace(/(mongodb\+srv:\/\/)([^:]+):([^@]+)@/, '$1****:****@'));
     await mongoose.connect(process.env.MONGODB_URI, mongooseOptions);
     console.log('Connected to MongoDB successfully');
   } catch (err) {
