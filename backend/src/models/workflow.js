@@ -71,4 +71,4 @@ workflowSchema.index({ user: 1, lastRun: -1 });
 
 const Workflow = mongoose.model('Workflow', workflowSchema);
 
-export default Workflow;
+export default Workflow; 
