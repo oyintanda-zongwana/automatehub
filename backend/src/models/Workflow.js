@@ -10,21 +10,33 @@ const workflowSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  },
+  status: {
+    type: String,
+    enum: ['active', 'inactive'],
+    default: 'inactive'
+  },
   steps: [{
     type: {
       type: String,
       required: true,
-      enum: ['http', 'email', 'delay', 'condition']
+      enum: ['trigger', 'action', 'condition']
+    },
+    name: {
+      type: String,
+      required: true
     },
     config: {
-      type: mongoose.Schema.Types.Mixed,
-      required: true
+      type: mongoose.Schema.Types.Mixed
     }
   }],
-  status: {
+  schedule: {
     type: String,
-    enum: ['active', 'inactive', 'error'],
-    default: 'inactive'
+    trim: true
   },
   lastRun: {
     type: Date
@@ -37,13 +49,20 @@ const workflowSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
+  createdAt: {
+    type: Date,
+    default: Date.now
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now
   }
-}, {
-  timestamps: true
+});
+
+// Update the updatedAt timestamp before saving
+workflowSchema.pre('save', function(next) {
+  this.updatedAt = new Date();
+  next();
 });
 
 // Add indexes for better query performance
