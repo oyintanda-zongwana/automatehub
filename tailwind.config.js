@@ -8,13 +8,13 @@ export default {
     extend: {
       colors: {
         primary: {
-          DEFAULT: 'rgb(var(--color-primary) / <alpha-value>)',
-          dark: 'rgb(var(--color-primary-dark) / <alpha-value>)',
-          light: 'rgb(var(--color-primary-light) / <alpha-value>)',
-          lighter: 'rgb(var(--color-primary-lighter) / <alpha-value>)',
+          DEFAULT: 'rgb(var(--color-primary) / 1)',
+          dark: 'rgb(var(--color-primary) / 0.8)',
+          light: 'rgb(var(--color-primary) / 0.6)',
+          lighter: 'rgb(var(--color-primary) / 0.4)',
         },
         secondary: {
-          DEFAULT: 'rgb(var(--color-secondary) / <alpha-value>)',
+          DEFAULT: 'rgb(var(--color-secondary) / 1)',
         },
       },
     },
