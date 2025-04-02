@@ -20,7 +20,9 @@
         <div class="grid gap-12 lg:grid-cols-2">
           <!-- Sample Blog Posts -->
           <article class="bg-white rounded-lg shadow-lg overflow-hidden">
-            <img class="w-full h-48 object-cover" src="/blog/automation-trends.jpg" alt="Automation Trends">
+            <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
+              <span class="text-gray-500">Automation Trends</span>
+            </div>
             <div class="p-8">
               <div class="flex items-center gap-2 text-sm text-gray-500 mb-4">
                 <time>March 15, 2024</time>
@@ -40,7 +42,9 @@
           </article>
 
           <article class="bg-white rounded-lg shadow-lg overflow-hidden">
-            <img class="w-full h-48 object-cover" src="/blog/productivity-tips.jpg" alt="Productivity Tips">
+            <div class="w-full h-48 bg-gray-200 flex items-center justify-center">
+              <span class="text-gray-500">Productivity Tips</span>
+            </div>
             <div class="p-8">
               <div class="flex items-center gap-2 text-sm text-gray-500 mb-4">
                 <time>March 10, 2024</time>
