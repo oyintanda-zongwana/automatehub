@@ -85,8 +85,8 @@
 
         <div class="grid grid-cols-1 gap-12 lg:grid-cols-3 lg:gap-8">
           <div class="space-y-4">
-            <div class="aspect-w-3 aspect-h-2">
-              <img class="object-cover shadow-lg rounded-lg" src="/team/leadership.jpg" alt="Leadership team">
+            <div class="aspect-w-3 aspect-h-2 bg-gray-200 rounded-lg flex items-center justify-center">
+              <span class="text-gray-500">Leadership Team</span>
             </div>
             <div class="text-lg leading-6 font-medium space-y-1">
               <h3>Leadership</h3>
@@ -95,8 +95,8 @@
           </div>
 
           <div class="space-y-4">
-            <div class="aspect-w-3 aspect-h-2">
-              <img class="object-cover shadow-lg rounded-lg" src="/team/engineering.jpg" alt="Engineering team">
+            <div class="aspect-w-3 aspect-h-2 bg-gray-200 rounded-lg flex items-center justify-center">
+              <span class="text-gray-500">Engineering Team</span>
             </div>
             <div class="text-lg leading-6 font-medium space-y-1">
               <h3>Engineering</h3>
@@ -105,8 +105,8 @@
           </div>
 
           <div class="space-y-4">
-            <div class="aspect-w-3 aspect-h-2">
-              <img class="object-cover shadow-lg rounded-lg" src="/team/support.jpg" alt="Support team">
+            <div class="aspect-w-3 aspect-h-2 bg-gray-200 rounded-lg flex items-center justify-center">
+              <span class="text-gray-500">Support Team</span>
             </div>
             <div class="text-lg leading-6 font-medium space-y-1">
               <h3>Support</h3>
