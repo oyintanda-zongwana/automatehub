@@ -1,6 +1,6 @@
 import express from 'express';
 import auth from '../middleware/auth.js';
-import Workflow from '../models/Workflow.js';
+import Workflow from '../models/workflow.js';
 
 const router = express.Router();
 
