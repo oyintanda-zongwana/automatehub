@@ -7,6 +7,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import authRoutes from './routes/auth.js';
 import workflowRoutes from './routes/workflow.js';
+import paymentRoutes from './routes/payment.js';
 
 dotenv.config();
 
@@ -69,6 +70,7 @@ mongoose.connection.on('disconnected', () => {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/workflows', workflowRoutes);
+app.use('/api/payments', paymentRoutes);
 
 // Health check endpoint for Render
 app.get('/health', (req, res) => {
