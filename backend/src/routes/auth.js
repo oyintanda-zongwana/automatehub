@@ -11,6 +11,29 @@ router.post('/register', async (req, res) => {
   try {
     const { name, email, password, company } = req.body;
 
+    // Validate required fields
+    if (!name || !email || !password) {
+      return res.status(400).json({ 
+        error: 'Missing required fields',
+        details: {
+          name: !name ? 'Name is required' : null,
+          email: !email ? 'Email is required' : null,
+          password: !password ? 'Password is required' : null
+        }
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: 'Invalid email format' });
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+      return res.status(400).json({ error: 'Password must be at least 6 characters long' });
+    }
+
     // Check if user already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
@@ -19,10 +42,10 @@ router.post('/register', async (req, res) => {
 
     // Create new user
     const user = new User({
-      name,
-      email,
+      name: name.trim(),
+      email: email.toLowerCase().trim(),
       password,
-      company
+      company: company ? company.trim() : undefined
     });
 
     await user.save();
@@ -32,6 +55,7 @@ router.post('/register', async (req, res) => {
       expiresIn: '7d'
     });
 
+    console.log('User registered successfully:', email);
     res.status(201).json({
       user: {
         id: user._id,
@@ -42,7 +66,20 @@ router.post('/register', async (req, res) => {
       token
     });
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error('Registration error:', error);
+    // Check for MongoDB validation errors
+    if (error.name === 'ValidationError') {
+      const errors = {};
+      for (let field in error.errors) {
+        errors[field] = error.errors[field].message;
+      }
+      return res.status(400).json({ error: 'Validation failed', details: errors });
+    }
+    // Check for MongoDB duplicate key error
+    if (error.code === 11000) {
+      return res.status(400).json({ error: 'Email already registered' });
+    }
+    res.status(400).json({ error: 'Registration failed', details: error.message });
   }
 });
 
