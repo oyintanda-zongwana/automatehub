@@ -10,16 +10,6 @@ const workflowSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  },
-  status: {
-    type: String,
-    enum: ['active', 'inactive'],
-    default: 'inactive'
-  },
   steps: [{
     type: {
       type: String,
@@ -31,15 +21,34 @@ const workflowSchema = new mongoose.Schema({
       required: true
     },
     config: {
-      type: mongoose.Schema.Types.Mixed
+      type: Map,
+      of: mongoose.Schema.Types.Mixed
     }
   }],
-  schedule: {
+  status: {
     type: String,
-    trim: true
+    enum: ['active', 'inactive', 'draft'],
+    default: 'draft'
+  },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
   },
   lastRun: {
     type: Date
+  },
+  nextRun: {
+    type: Date
+  },
+  schedule: {
+    type: String,
+    enum: ['manual', 'daily', 'weekly', 'monthly', 'custom'],
+    default: 'manual'
+  },
+  scheduleConfig: {
+    type: Map,
+    of: mongoose.Schema.Types.Mixed
   },
   successCount: {
     type: Number,
@@ -49,25 +58,18 @@ const workflowSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
-  },
-  updatedAt: {
-    type: Date,
-    default: Date.now
-  }
+  errorLog: [{
+    timestamp: Date,
+    message: String,
+    details: mongoose.Schema.Types.Mixed
+  }]
+}, {
+  timestamps: true
 });
 
-// Update the updatedAt timestamp before saving
-workflowSchema.pre('save', function(next) {
-  this.updatedAt = new Date();
-  next();
-});
-
-// Add indexes for better query performance
+// Index for faster queries
 workflowSchema.index({ user: 1, status: 1 });
-workflowSchema.index({ user: 1, lastRun: -1 });
+workflowSchema.index({ nextRun: 1 });
 
 const Workflow = mongoose.model('Workflow', workflowSchema);
 
