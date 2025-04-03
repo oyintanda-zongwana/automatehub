@@ -4,6 +4,8 @@ import cors from 'cors';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
+import subscriptionRoutes from './routes/subscription.js';
+import scheduleTaskReset from './cron/resetTaskUsage.js';
 
 dotenv.config();
 
@@ -26,6 +28,8 @@ const mongooseOptions = {
 mongoose.connect(process.env.MONGODB_URI, mongooseOptions)
   .then(() => {
     console.log('Connected to MongoDB successfully');
+    // Start cron job after successful database connection
+    scheduleTaskReset();
   })
   .catch(err => {
     console.error('MongoDB connection error:', err);
@@ -43,6 +47,7 @@ mongoose.connection.on('disconnected', () => {
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/subscription', subscriptionRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
