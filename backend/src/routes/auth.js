@@ -39,7 +39,8 @@ router.post('/register', [
     user = new User({
       name,
       email,
-      password
+      password,
+      role: 'user'  // Set default role
     });
 
     const salt = await bcrypt.genSalt(10);
@@ -58,7 +59,15 @@ router.post('/register', [
       { expiresIn: '24h' },
       (err, token) => {
         if (err) throw err;
-        res.json({ token, user: { id: user.id, name: user.name, email: user.email } });
+        res.json({ 
+          token,
+          user: {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+            role: user.role
+          }
+        });
       }
     );
   } catch (err) {
