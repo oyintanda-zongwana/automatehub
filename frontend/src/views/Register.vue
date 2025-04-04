@@ -130,17 +130,24 @@ const handleSubmit = async () => {
       return;
     }
 
-    // Log the request data for debugging
+    // Log the request data for debugging (excluding password)
     console.log('Submitting registration form:', {
-      ...formData.value,
+      name: formData.value.name,
+      email: formData.value.email,
       password: '[REDACTED]'
     });
 
-    await authStore.register(formData.value);
+    const response = await authStore.register(formData.value);
+    console.log('Registration successful:', response.data);
     router.push('/dashboard');
   } catch (err) {
     console.error('Registration error:', err);
-    if (err.response?.data?.message) {
+    
+    // Handle validation errors from the backend
+    if (err.response?.data?.errors) {
+      const validationErrors = err.response.data.errors;
+      error.value = validationErrors.map(e => e.msg).join(', ');
+    } else if (err.response?.data?.message) {
       error.value = err.response.data.message;
     } else if (err.response?.status === 400) {
       error.value = 'Invalid registration data. Please check your input and try again.';
