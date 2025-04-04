@@ -94,6 +94,7 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 
+// Force new deployment timestamp: {{ new Date().toISOString() }}
 const router = useRouter();
 const authStore = useAuthStore();
 
@@ -119,6 +120,13 @@ const handleSubmit = async () => {
 
     if (formData.value.password.length < 6) {
       error.value = 'Password must be at least 6 characters long';
+      return;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.value.email)) {
+      error.value = 'Please enter a valid email address';
       return;
     }
 
