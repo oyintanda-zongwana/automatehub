@@ -115,11 +115,13 @@ const handleSubmit = async () => {
     // Basic validation
     if (!formData.value.name || !formData.value.email || !formData.value.password) {
       error.value = 'All fields are required';
+      loading.value = false;
       return;
     }
 
     if (formData.value.password.length < 6) {
       error.value = 'Password must be at least 6 characters long';
+      loading.value = false;
       return;
     }
 
@@ -127,17 +129,24 @@ const handleSubmit = async () => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.value.email)) {
       error.value = 'Please enter a valid email address';
+      loading.value = false;
       return;
     }
 
-    // Log the request data for debugging (excluding password)
+    // Create a clean copy of the form data
+    const registrationData = {
+      name: formData.value.name.trim(),
+      email: formData.value.email.trim().toLowerCase(),
+      password: formData.value.password
+    };
+
+    // Log the request data for debugging
     console.log('Submitting registration form:', {
-      name: formData.value.name,
-      email: formData.value.email,
+      ...registrationData,
       password: '[REDACTED]'
     });
 
-    const response = await authStore.register(formData.value);
+    const response = await authStore.register(registrationData);
     console.log('Registration successful:', response.data);
     router.push('/dashboard');
   } catch (err) {

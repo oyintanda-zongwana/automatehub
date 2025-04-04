@@ -11,13 +11,20 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async register(userData) {
       try {
-        // Add role field to registration data
-        const requestData = {
+        // Log the incoming data
+        console.log('Auth store received registration data:', {
           ...userData,
-          role: 'user'  // Always set role to 'user' for new registrations
+          password: '[REDACTED]'
+        });
+
+        // Create a clean request payload
+        const requestData = {
+          name: userData.name,
+          email: userData.email,
+          password: userData.password
         };
 
-        console.log('Registration request data:', {
+        console.log('Sending registration request with data:', {
           ...requestData,
           password: '[REDACTED]'
         });
