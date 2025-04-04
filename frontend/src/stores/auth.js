@@ -11,7 +11,20 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async register(userData) {
       try {
-        const response = await axios.post('/auth/register', userData);
+        console.log('Making registration request with data:', {
+          ...userData,
+          password: '[REDACTED]'
+        });
+
+        const response = await axios.post('/auth/register', {
+          name: userData.name,
+          email: userData.email,
+          password: userData.password,
+          company: userData.company || 'Default Company' // Add company field
+        });
+
+        console.log('Registration response:', response.data);
+        
         const { token, user } = response.data;
         
         this.token = token;
@@ -21,7 +34,12 @@ export const useAuthStore = defineStore('auth', {
         localStorage.setItem('token', token);
         return response;
       } catch (error) {
-        console.error('Registration error:', error.response?.data || error.message);
+        console.error('Registration error details:', {
+          message: error.message,
+          response: error.response?.data,
+          status: error.response?.status,
+          headers: error.response?.headers
+        });
         throw error;
       }
     },

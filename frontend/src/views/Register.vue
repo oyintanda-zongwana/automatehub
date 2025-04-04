@@ -44,6 +44,21 @@
           </div>
 
           <div>
+            <label for="company" class="block text-sm font-medium text-gray-700">
+              Company Name
+            </label>
+            <div class="mt-1">
+              <input
+                id="company"
+                v-model="formData.company"
+                type="text"
+                placeholder="Optional"
+                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              />
+            </div>
+          </div>
+
+          <div>
             <label for="password" class="block text-sm font-medium text-gray-700">
               Password
             </label>
@@ -57,6 +72,7 @@
                 class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
             </div>
+            <p class="mt-1 text-sm text-gray-500">Must be at least 6 characters long</p>
           </div>
 
           <div>
@@ -99,7 +115,8 @@ const authStore = useAuthStore();
 const formData = ref({
   name: '',
   email: '',
-  password: ''
+  password: '',
+  company: ''
 });
 
 const error = ref('');
@@ -122,7 +139,7 @@ const handleSubmit = async () => {
     }
 
     // Log the request data for debugging
-    console.log('Sending registration request:', {
+    console.log('Submitting registration form:', {
       ...formData.value,
       password: '[REDACTED]'
     });
@@ -131,7 +148,13 @@ const handleSubmit = async () => {
     router.push('/dashboard');
   } catch (err) {
     console.error('Registration error:', err);
-    error.value = err.response?.data?.message || 'Registration failed. Please try again.';
+    if (err.response?.data?.message) {
+      error.value = err.response.data.message;
+    } else if (err.response?.status === 400) {
+      error.value = 'Invalid registration data. Please check your input and try again.';
+    } else {
+      error.value = 'Registration failed. Please try again.';
+    }
   } finally {
     loading.value = false;
   }
