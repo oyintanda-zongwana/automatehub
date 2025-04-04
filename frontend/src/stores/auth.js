@@ -11,17 +11,25 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async register(userData) {
       try {
-        console.log('Making registration request with data:', {
-          ...userData,
-          password: '[REDACTED]'
-        });
-
-        const response = await axios.post('/auth/register', {
+        // Log the exact request data being sent
+        const requestData = {
           name: userData.name,
           email: userData.email,
           password: userData.password,
-          company: userData.company || 'Default Company' // Add company field
+          role: 'user' // Add role field
+        };
+
+        console.log('Making registration request with data:', {
+          ...requestData,
+          password: '[REDACTED]'
         });
+
+        console.log('Request URL:', axios.defaults.baseURL + '/auth/register');
+        console.log('Request headers:', {
+          'Content-Type': 'application/json'
+        });
+
+        const response = await axios.post('/auth/register', requestData);
 
         console.log('Registration response:', response.data);
         
@@ -38,7 +46,13 @@ export const useAuthStore = defineStore('auth', {
           message: error.message,
           response: error.response?.data,
           status: error.response?.status,
-          headers: error.response?.headers
+          statusText: error.response?.statusText,
+          headers: error.response?.headers,
+          config: {
+            url: error.config?.url,
+            method: error.config?.method,
+            data: error.config?.data
+          }
         });
         throw error;
       }

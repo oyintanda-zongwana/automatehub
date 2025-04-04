@@ -44,21 +44,6 @@
           </div>
 
           <div>
-            <label for="company" class="block text-sm font-medium text-gray-700">
-              Company Name
-            </label>
-            <div class="mt-1">
-              <input
-                id="company"
-                v-model="formData.company"
-                type="text"
-                placeholder="Optional"
-                class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-              />
-            </div>
-          </div>
-
-          <div>
             <label for="password" class="block text-sm font-medium text-gray-700">
               Password
             </label>
@@ -115,8 +100,7 @@ const authStore = useAuthStore();
 const formData = ref({
   name: '',
   email: '',
-  password: '',
-  company: ''
+  password: ''
 });
 
 const error = ref('');
