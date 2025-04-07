@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import axios from '../config/axios';
+import api from '../config/axios';
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -11,77 +11,38 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async register(userData) {
       try {
-        // Detailed logging of the incoming data
-        console.log('Raw userData received:', userData);
-        console.log('userData type:', typeof userData);
-        console.log('userData properties:', Object.keys(userData));
-
-        // Validate input data
-        if (!userData.name || !userData.email || !userData.password) {
-          console.error('Missing required fields:', {
-            hasName: !!userData.name,
-            hasEmail: !!userData.email,
-            hasPassword: !!userData.password
-          });
-          throw new Error('All fields are required');
-        }
-
+        // Create request payload
         const requestData = {
-          name: userData.name.trim(),
-          email: userData.email.trim().toLowerCase(),
+          name: userData.name?.trim(),
+          email: userData.email?.trim().toLowerCase(),
           password: userData.password
         };
 
-        // Log the exact request data being sent
-        console.log('Final request data structure:', {
-          ...requestData,
-          password: '[REDACTED]'
+        // Log the request for debugging
+        console.log('Sending registration request:', {
+          url: '/auth/register',
+          data: { ...requestData, password: '[REDACTED]' }
         });
 
-        // Add explicit debugging for the request
-        try {
-          const response = await axios({
-            method: 'post',
-            url: '/auth/register',
-            data: requestData,
-            headers: {
-              'Content-Type': 'application/json',
-              'Accept': 'application/json'
-            }
-          });
-          
-          console.log('Successful response:', response.data);
-          
-          const { token, user } = response.data;
-          this.token = token;
-          this.user = user;
-          this.isAuthenticated = true;
-          localStorage.setItem('token', token);
-          return response;
-        } catch (requestError) {
-          console.error('Request failed with:', {
-            status: requestError.response?.status,
-            statusText: requestError.response?.statusText,
-            data: requestError.response?.data,
-            headers: requestError.response?.headers,
-            requestData: requestData
-          });
-          throw requestError;
-        }
+        // Simple POST request
+        const response = await api.post('/auth/register', requestData);
+        
+        const { token, user } = response.data;
+        this.token = token;
+        this.user = user;
+        this.isAuthenticated = true;
+        localStorage.setItem('token', token);
+        
+        return response;
       } catch (error) {
-        console.error('Registration error details:', {
-          message: error.message,
-          response: error.response?.data,
-          status: error.response?.status,
-          statusText: error.response?.statusText
-        });
+        console.error('Registration failed:', error.response?.data);
         throw error;
       }
     },
 
     async login(credentials) {
       try {
-        const response = await axios.post('/auth/login', credentials);
+        const response = await api.post('/auth/login', credentials);
         const { token, user } = response.data;
 
         this.token = token;
@@ -98,7 +59,7 @@ export const useAuthStore = defineStore('auth', {
 
     async logout() {
       try {
-        await axios.post('/auth/logout');
+        await api.post('/auth/logout');
       } catch (error) {
         console.error('Logout error:', error);
       } finally {
@@ -111,7 +72,7 @@ export const useAuthStore = defineStore('auth', {
 
     async fetchUser() {
       try {
-        const response = await axios.get('/auth/me');
+        const response = await api.get('/auth/me');
         this.user = response.data;
         return response;
       } catch (error) {

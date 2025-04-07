@@ -1,29 +1,34 @@
 import axios from 'axios';
 
-// Set base URL for all axios requests
-axios.defaults.baseURL = 'https://automatehub-pdpd.onrender.com/api';
-
-// Add request interceptor to include auth token
-axios.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+const api = axios.create({
+    baseURL: 'https://automatehub-pdpd.onrender.com/api',
+    headers: {
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
     }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
+});
+
+api.interceptors.request.use(
+    (config) => {
+        const token = localStorage.getItem('token');
+        if (token) {
+            config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+    },
+    (error) => Promise.reject(error)
 );
 
-// Add response interceptor to handle errors
-axios.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    console.error('API Error:', error.response?.data || error.message);
-    return Promise.reject(error);
-  }
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        console.error('API Error:', {
+            status: error.response?.status,
+            data: error.response?.data,
+            message: error.message
+        });
+        return Promise.reject(error);
+    }
 );
 
-export default axios; 
+export default api; 
