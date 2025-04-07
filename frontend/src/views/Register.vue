@@ -120,20 +120,29 @@ const handleSubmit = async () => {
     loading.value = true;
     error.value = '';
     
-    // Log current form data
-    console.log('Current form data:', {
-      ...formData.value,
-      password: formData.value.password ? '[REDACTED]' : undefined
+    // Log the raw form data
+    console.log('Raw form data:', {
+      name: formData.value.name,
+      email: formData.value.email,
+      hasPassword: !!formData.value.password
     });
     
     // Basic validation
     if (!formData.value.name || !formData.value.email || !formData.value.password) {
+      console.error('Form validation failed:', {
+        hasName: !!formData.value.name,
+        hasEmail: !!formData.value.email,
+        hasPassword: !!formData.value.password
+      });
       error.value = 'All fields are required';
       loading.value = false;
       return;
     }
 
     if (formData.value.password.length < 6) {
+      console.error('Password validation failed:', {
+        passwordLength: formData.value.password.length
+      });
       error.value = 'Password must be at least 6 characters long';
       loading.value = false;
       return;
@@ -142,6 +151,9 @@ const handleSubmit = async () => {
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!emailRegex.test(formData.value.email)) {
+      console.error('Email validation failed:', {
+        email: formData.value.email
+      });
       error.value = 'Please enter a valid email address';
       loading.value = false;
       return;
@@ -154,17 +166,22 @@ const handleSubmit = async () => {
       password: formData.value.password
     };
 
-    // Log the request data for debugging
-    console.log('Submitting registration form:', {
-      ...registrationData,
-      password: '[REDACTED]'
+    // Log the registration data being sent to auth store
+    console.log('Sending to auth store:', {
+      name: registrationData.name,
+      email: registrationData.email,
+      hasPassword: !!registrationData.password
     });
 
     const response = await authStore.register(registrationData);
     console.log('Registration successful:', response.data);
     router.push('/dashboard');
   } catch (err) {
-    console.error('Registration error:', err);
+    console.error('Registration error:', {
+      message: err.message,
+      response: err.response?.data,
+      status: err.response?.status
+    });
     
     // Handle validation errors from the backend
     if (err.response?.data?.errors) {

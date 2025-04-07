@@ -11,14 +11,18 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async register(userData) {
       try {
-        // Log the incoming data
-        console.log('Auth store received registration data:', {
-          ...userData,
-          password: '[REDACTED]'
-        });
+        // Detailed logging of the incoming data
+        console.log('Raw userData received:', userData);
+        console.log('userData type:', typeof userData);
+        console.log('userData properties:', Object.keys(userData));
 
-        // Create a clean request payload and ensure all fields are present
+        // Validate input data
         if (!userData.name || !userData.email || !userData.password) {
+          console.error('Missing required fields:', {
+            hasName: !!userData.name,
+            hasEmail: !!userData.email,
+            hasPassword: !!userData.password
+          });
           throw new Error('All fields are required');
         }
 
@@ -28,22 +32,42 @@ export const useAuthStore = defineStore('auth', {
           password: userData.password
         };
 
-        console.log('Sending registration request with data:', {
+        // Log the exact request data being sent
+        console.log('Final request data structure:', {
           ...requestData,
           password: '[REDACTED]'
         });
 
-        // Send the request with proper headers
-        const response = await axios.post('/auth/register', requestData);
-        
-        const { token, user } = response.data;
-        
-        this.token = token;
-        this.user = user;
-        this.isAuthenticated = true;
-        
-        localStorage.setItem('token', token);
-        return response;
+        // Add explicit debugging for the request
+        try {
+          const response = await axios({
+            method: 'post',
+            url: '/auth/register',
+            data: requestData,
+            headers: {
+              'Content-Type': 'application/json',
+              'Accept': 'application/json'
+            }
+          });
+          
+          console.log('Successful response:', response.data);
+          
+          const { token, user } = response.data;
+          this.token = token;
+          this.user = user;
+          this.isAuthenticated = true;
+          localStorage.setItem('token', token);
+          return response;
+        } catch (requestError) {
+          console.error('Request failed with:', {
+            status: requestError.response?.status,
+            statusText: requestError.response?.statusText,
+            data: requestError.response?.data,
+            headers: requestError.response?.headers,
+            requestData: requestData
+          });
+          throw requestError;
+        }
       } catch (error) {
         console.error('Registration error details:', {
           message: error.message,
