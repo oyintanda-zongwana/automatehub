@@ -120,77 +120,53 @@ const handleSubmit = async () => {
     loading.value = true;
     error.value = '';
     
-    // Log the raw form data
-    console.log('Raw form data:', {
-      name: formData.value.name,
-      email: formData.value.email,
-      hasPassword: !!formData.value.password
-    });
-    
-    // Basic validation
-    if (!formData.value.name || !formData.value.email || !formData.value.password) {
-      console.error('Form validation failed:', {
-        hasName: !!formData.value.name,
-        hasEmail: !!formData.value.email,
-        hasPassword: !!formData.value.password
-      });
-      error.value = 'All fields are required';
-      loading.value = false;
-      return;
-    }
-
-    if (formData.value.password.length < 6) {
-      console.error('Password validation failed:', {
-        passwordLength: formData.value.password.length
-      });
-      error.value = 'Password must be at least 6 characters long';
-      loading.value = false;
-      return;
-    }
-
-    // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.value.email)) {
-      console.error('Email validation failed:', {
-        email: formData.value.email
-      });
-      error.value = 'Please enter a valid email address';
-      loading.value = false;
-      return;
-    }
-
-    // Create a clean copy of the form data
+    // Create registration data object
     const registrationData = {
-      name: formData.value.name.trim(),
-      email: formData.value.email.trim().toLowerCase(),
-      password: formData.value.password
+      name: formData.value.name?.trim() || '',
+      email: formData.value.email?.trim().toLowerCase() || '',
+      password: formData.value.password || ''
     };
 
-    // Log the registration data being sent to auth store
-    console.log('Sending to auth store:', {
+    // Log the data being sent
+    console.log('Registration data:', {
       name: registrationData.name,
       email: registrationData.email,
       hasPassword: !!registrationData.password
     });
 
-    const response = await authStore.register(registrationData);
-    console.log('Registration successful:', response.data);
+    // Client-side validation
+    if (!registrationData.name || !registrationData.email || !registrationData.password) {
+      error.value = 'All fields are required';
+      return;
+    }
+
+    if (registrationData.password.length < 6) {
+      error.value = 'Password must be at least 6 characters long';
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(registrationData.email)) {
+      error.value = 'Please enter a valid email address';
+      return;
+    }
+
+    // Send registration request
+    const response = await authStore.register({
+      name: registrationData.name,
+      email: registrationData.email,
+      password: registrationData.password
+    });
+
+    console.log('Registration successful');
     router.push('/dashboard');
   } catch (err) {
-    console.error('Registration error:', {
-      message: err.message,
-      response: err.response?.data,
-      status: err.response?.status
-    });
+    console.error('Registration error:', err);
     
-    // Handle validation errors from the backend
     if (err.response?.data?.errors) {
-      const validationErrors = err.response.data.errors;
-      error.value = validationErrors.map(e => e.msg).join(', ');
+      error.value = err.response.data.errors.map(e => e.msg).join(', ');
     } else if (err.response?.data?.message) {
       error.value = err.response.data.message;
-    } else if (err.response?.status === 400) {
-      error.value = 'Invalid registration data. Please check your input and try again.';
     } else {
       error.value = 'Registration failed. Please try again.';
     }
