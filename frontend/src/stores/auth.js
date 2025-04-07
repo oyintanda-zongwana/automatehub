@@ -14,16 +14,13 @@ export const useAuthStore = defineStore('auth', {
         // Log the incoming data
         console.log('Raw userData:', JSON.stringify(userData, null, 2));
 
-        // Ensure all required fields are present and properly formatted
         const requestBody = JSON.stringify({
           name: userData.name,
           email: userData.email,
           password: userData.password
         });
 
-        console.log('Request body:', requestBody.replace(userData.password, '[REDACTED]'));
-
-        // Make the request with explicit configuration
+        // Make the request
         const response = await api({
           method: 'POST',
           url: '/auth/register',
@@ -31,7 +28,7 @@ export const useAuthStore = defineStore('auth', {
           headers: {
             'Content-Type': 'application/json'
           },
-          transformRequest: [(data) => data] // Prevent axios from transforming the data
+          transformRequest: [(data) => data]
         });
         
         const { token, user } = response.data;
