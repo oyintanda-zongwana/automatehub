@@ -30,13 +30,13 @@ export const useAuthStore = defineStore('auth', {
         });
 
         const response = await axios.post('/auth/register', requestData);
-        
+
         const { token, user } = response.data;
-        
+
         this.token = token;
         this.user = user;
         this.isAuthenticated = true;
-        
+
         localStorage.setItem('token', token);
         return response;
       } catch (error) {
@@ -54,11 +54,11 @@ export const useAuthStore = defineStore('auth', {
       try {
         const response = await axios.post('/auth/login', credentials);
         const { token, user } = response.data;
-        
+
         this.token = token;
         this.user = user;
         this.isAuthenticated = true;
-        
+
         localStorage.setItem('token', token);
         return response;
       } catch (error) {
