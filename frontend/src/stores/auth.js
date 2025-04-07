@@ -17,10 +17,14 @@ export const useAuthStore = defineStore('auth', {
           password: '[REDACTED]'
         });
 
-        // Create a clean request payload
+        // Create a clean request payload and ensure all fields are present
+        if (!userData.name || !userData.email || !userData.password) {
+          throw new Error('All fields are required');
+        }
+
         const requestData = {
-          name: userData.name,
-          email: userData.email,
+          name: userData.name.trim(),
+          email: userData.email.trim().toLowerCase(),
           password: userData.password
         };
 
@@ -29,12 +33,8 @@ export const useAuthStore = defineStore('auth', {
           password: '[REDACTED]'
         });
 
-        // Make sure we're sending the data as JSON
-        const response = await axios.post('/auth/register', requestData, {
-          headers: {
-            'Content-Type': 'application/json'
-          }
-        });
+        // Send the request with proper headers
+        const response = await axios.post('/auth/register', requestData);
         
         const { token, user } = response.data;
         
