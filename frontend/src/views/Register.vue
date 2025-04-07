@@ -125,19 +125,6 @@ const handleSubmit = async () => {
     const email = formData.value.email.trim().toLowerCase();
     const password = formData.value.password;
 
-    // Enhanced logging
-    console.log('Form submission:', {
-      rawFormData: { ...formData.value, password: '[REDACTED]' },
-      processedData: {
-        name,
-        email,
-        hasPassword: !!password,
-        nameLength: name.length,
-        emailLength: email.length,
-        passwordLength: password.length
-      }
-    });
-
     // Client-side validation
     if (!name || !email || !password) {
       error.value = 'All fields are required';
@@ -158,38 +145,16 @@ const handleSubmit = async () => {
       return;
     }
 
-    // Create registration data object
-    const registrationData = {
+    // Send registration request
+    await authStore.register({
       name,
       email,
       password
-    };
-
-    // Debug: Make a direct fetch call
-    try {
-      const response = await fetch('https://automatehub-pdpd.onrender.com/api/auth/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(registrationData)
-      });
-      const data = await response.json();
-      console.log('Direct fetch response:', data);
-    } catch (fetchError) {
-      console.error('Direct fetch error:', fetchError);
-    }
-
-    // Send registration request
-    await authStore.register(registrationData);
+    });
     
-    console.log('Registration successful');
     router.push('/dashboard');
   } catch (err) {
-    console.error('Form submission error:', {
-      message: err.message,
-      response: err.response?.data
-    });
+    console.error('Registration failed:', err);
     
     if (err.response?.data?.errors) {
       error.value = err.response.data.errors.map(e => e.msg).join(', ');

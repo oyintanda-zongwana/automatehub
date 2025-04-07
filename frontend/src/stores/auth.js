@@ -1,14 +1,5 @@
 import { defineStore } from 'pinia';
 import api from '../config/axios';
-import axios from 'axios';
-
-const api = axios.create({
-    baseURL: 'https://automatehub-pdpd.onrender.com/api',
-    headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-    }
-});
 
 export const useAuthStore = defineStore('auth', {
   state: () => ({
@@ -20,22 +11,8 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async register(userData) {
       try {
-        // Log the exact data being sent
-        console.log('Sending registration request with data:', {
-          name: userData.name,
-          email: userData.email,
-          hasPassword: !!userData.password,
-          dataType: typeof userData,
-          isObject: userData instanceof Object,
-          keys: Object.keys(userData)
-        });
-
-        // Make the request with explicit data formatting
-        const response = await api.post('/auth/register', {
-          name: userData.name,
-          email: userData.email,
-          password: userData.password
-        });
+        // Make the request
+        const response = await api.post('/auth/register', userData);
         
         const { token, user } = response.data;
         this.token = token;
