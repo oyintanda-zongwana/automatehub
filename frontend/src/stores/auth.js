@@ -29,14 +29,18 @@ export const useAuthStore = defineStore('auth', {
           password: '[REDACTED]'
         });
 
-        const response = await axios.post('/auth/register', requestData);
-
+        const response = await axios.post('/auth/register', requestData, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
         const { token, user } = response.data;
-
+        
         this.token = token;
         this.user = user;
         this.isAuthenticated = true;
-
+        
         localStorage.setItem('token', token);
         return response;
       } catch (error) {

@@ -90,7 +90,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 
@@ -104,6 +104,14 @@ const formData = ref({
   password: ''
 });
 
+// Add watcher to log form data changes
+watch(formData, (newVal) => {
+  console.log('Form data changed:', {
+    ...newVal,
+    password: newVal.password ? '[REDACTED]' : undefined
+  });
+}, { deep: true });
+
 const error = ref('');
 const loading = ref(false);
 
@@ -111,6 +119,12 @@ const handleSubmit = async () => {
   try {
     loading.value = true;
     error.value = '';
+    
+    // Log current form data
+    console.log('Current form data:', {
+      ...formData.value,
+      password: formData.value.password ? '[REDACTED]' : undefined
+    });
     
     // Basic validation
     if (!formData.value.name || !formData.value.email || !formData.value.password) {
