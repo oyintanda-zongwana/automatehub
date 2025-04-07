@@ -120,46 +120,58 @@ const handleSubmit = async () => {
     loading.value = true;
     error.value = '';
     
-    // Prepare the registration data
-    const registrationData = {
-      name: formData.value.name.trim(),
-      email: formData.value.email.trim().toLowerCase(),
-      password: formData.value.password
-    };
+    // Get form values and trim whitespace
+    const name = formData.value.name.trim();
+    const email = formData.value.email.trim().toLowerCase();
+    const password = formData.value.password;
+
+    // Log raw form values (excluding password)
+    console.log('Form values:', { name, email, hasPassword: !!password });
 
     // Client-side validation
-    if (!registrationData.name || !registrationData.email || !registrationData.password) {
+    if (!name || !email || !password) {
       error.value = 'All fields are required';
       loading.value = false;
       return;
     }
 
-    if (registrationData.password.length < 6) {
+    if (password.length < 6) {
       error.value = 'Password must be at least 6 characters long';
       loading.value = false;
       return;
     }
 
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(registrationData.email)) {
+    if (!emailRegex.test(email)) {
       error.value = 'Please enter a valid email address';
       loading.value = false;
       return;
     }
 
-    // Log the data being sent (excluding password)
-    console.log('Submitting registration:', {
+    // Create registration data object
+    const registrationData = {
+      name,
+      email,
+      password
+    };
+
+    // Log the final data structure (excluding password)
+    console.log('Registration data:', {
       name: registrationData.name,
       email: registrationData.email,
       hasPassword: !!registrationData.password
     });
 
-    // Send the registration request
+    // Send registration request
     await authStore.register(registrationData);
+    
     console.log('Registration successful');
     router.push('/dashboard');
   } catch (err) {
-    console.error('Registration error:', err);
+    console.error('Form submission error:', {
+      message: err.message,
+      response: err.response?.data
+    });
     
     if (err.response?.data?.errors) {
       error.value = err.response.data.errors.map(e => e.msg).join(', ');

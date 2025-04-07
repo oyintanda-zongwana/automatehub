@@ -11,22 +11,28 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async register(userData) {
       try {
-        // Ensure data is properly structured
-        const requestData = {
+        // Log the incoming data
+        console.log('Raw userData:', JSON.stringify(userData, null, 2));
+
+        // Ensure all required fields are present and properly formatted
+        const requestBody = JSON.stringify({
           name: userData.name,
           email: userData.email,
           password: userData.password
-        };
-
-        // Log the request data (excluding password)
-        console.log('Sending registration request:', {
-          name: requestData.name,
-          email: requestData.email,
-          hasPassword: !!requestData.password
         });
 
-        // Make the API call with the structured data
-        const response = await api.post('/auth/register', requestData);
+        console.log('Request body:', requestBody.replace(userData.password, '[REDACTED]'));
+
+        // Make the request with explicit configuration
+        const response = await api({
+          method: 'POST',
+          url: '/auth/register',
+          data: requestBody,
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          transformRequest: [(data) => data] // Prevent axios from transforming the data
+        });
         
         const { token, user } = response.data;
         this.token = token;
@@ -36,7 +42,13 @@ export const useAuthStore = defineStore('auth', {
         
         return response;
       } catch (error) {
-        console.error('Registration failed:', error.response?.data);
+        // Log detailed error information
+        console.error('Registration error:', {
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          data: error.response?.data,
+          headers: error.response?.headers
+        });
         throw error;
       }
     },
