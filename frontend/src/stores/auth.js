@@ -11,15 +11,22 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async register(userData) {
       try {
-        // Log the incoming data
-        console.log('Raw userData:', {
+        // Log the exact data being sent
+        console.log('Sending registration request with data:', {
           name: userData.name,
           email: userData.email,
-          hasPassword: !!userData.password
+          hasPassword: !!userData.password,
+          dataType: typeof userData,
+          isObject: userData instanceof Object,
+          keys: Object.keys(userData)
         });
 
-        // Make the request
-        const response = await api.post('/auth/register', userData);
+        // Make the request with explicit data formatting
+        const response = await api.post('/auth/register', {
+          name: userData.name,
+          email: userData.email,
+          password: userData.password
+        });
         
         const { token, user } = response.data;
         this.token = token;
@@ -29,12 +36,13 @@ export const useAuthStore = defineStore('auth', {
         
         return response;
       } catch (error) {
-        // Log detailed error information
+        // Enhanced error logging
         console.error('Registration error:', {
           status: error.response?.status,
           statusText: error.response?.statusText,
           data: error.response?.data,
-          headers: error.response?.headers
+          headers: error.response?.headers,
+          requestData: error.config?.data // Log what was actually sent
         });
         throw error;
       }

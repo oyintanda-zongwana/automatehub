@@ -125,8 +125,18 @@ const handleSubmit = async () => {
     const email = formData.value.email.trim().toLowerCase();
     const password = formData.value.password;
 
-    // Log raw form values (excluding password)
-    console.log('Form values:', { name, email, hasPassword: !!password });
+    // Enhanced logging
+    console.log('Form submission:', {
+      rawFormData: { ...formData.value, password: '[REDACTED]' },
+      processedData: {
+        name,
+        email,
+        hasPassword: !!password,
+        nameLength: name.length,
+        emailLength: email.length,
+        passwordLength: password.length
+      }
+    });
 
     // Client-side validation
     if (!name || !email || !password) {
@@ -156,10 +166,13 @@ const handleSubmit = async () => {
     };
 
     // Log the final data structure (excluding password)
-    console.log('Registration data:', {
+    console.log('Sending registration data:', {
       name: registrationData.name,
       email: registrationData.email,
-      hasPassword: !!registrationData.password
+      hasPassword: !!registrationData.password,
+      dataType: typeof registrationData,
+      isObject: registrationData instanceof Object,
+      keys: Object.keys(registrationData)
     });
 
     // Send registration request
