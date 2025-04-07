@@ -1,35 +1,33 @@
-import mongoose from 'mongoose';
+const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
   name: {
     type: String,
-    required: true
+    required: true,
+    trim: true
   },
   email: {
     type: String,
     required: true,
     unique: true,
+    trim: true,
     lowercase: true
   },
   password: {
     type: String,
     required: true
   },
-  subscription: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Subscription'
+  isVerified: {
+    type: Boolean,
+    default: false
   },
-  workspaces: [{
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Workspace'
-  }],
+  verificationToken: String,
+  resetPasswordToken: String,
+  resetPasswordExpires: Date,
   createdAt: {
     type: Date,
     default: Date.now
-  },
-  lastLogin: {
-    type: Date
   }
 });
 
-export default mongoose.model('User', userSchema); 
+module.exports = mongoose.model('User', userSchema); 
