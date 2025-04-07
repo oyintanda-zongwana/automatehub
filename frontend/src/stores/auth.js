@@ -12,24 +12,14 @@ export const useAuthStore = defineStore('auth', {
     async register(userData) {
       try {
         // Log the incoming data
-        console.log('Raw userData:', JSON.stringify(userData, null, 2));
-
-        const requestBody = JSON.stringify({
+        console.log('Raw userData:', {
           name: userData.name,
           email: userData.email,
-          password: userData.password
+          hasPassword: !!userData.password
         });
 
         // Make the request
-        const response = await api({
-          method: 'POST',
-          url: '/auth/register',
-          data: requestBody,
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          transformRequest: [(data) => data]
-        });
+        const response = await api.post('/auth/register', userData);
         
         const { token, user } = response.data;
         this.token = token;
