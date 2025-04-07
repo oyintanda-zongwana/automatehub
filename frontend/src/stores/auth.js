@@ -29,7 +29,8 @@ export const useAuthStore = defineStore('auth', {
           password: '[REDACTED]'
         });
 
-        const response = await axios.post('/auth/register', requestData, {
+        // Make sure we're sending the data as JSON
+        const response = await axios.post('/auth/register', JSON.stringify(requestData), {
           headers: {
             'Content-Type': 'application/json'
           }
