@@ -165,15 +165,20 @@ const handleSubmit = async () => {
       password
     };
 
-    // Log the final data structure (excluding password)
-    console.log('Sending registration data:', {
-      name: registrationData.name,
-      email: registrationData.email,
-      hasPassword: !!registrationData.password,
-      dataType: typeof registrationData,
-      isObject: registrationData instanceof Object,
-      keys: Object.keys(registrationData)
-    });
+    // Debug: Make a direct fetch call
+    try {
+      const response = await fetch('https://automatehub-pdpd.onrender.com/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(registrationData)
+      });
+      const data = await response.json();
+      console.log('Direct fetch response:', data);
+    } catch (fetchError) {
+      console.error('Direct fetch error:', fetchError);
+    }
 
     // Send registration request
     await authStore.register(registrationData);
