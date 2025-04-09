@@ -11,24 +11,22 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async register(userData) {
       try {
-        // Log the request data (excluding password)
+        // Format the data explicitly
+        const formattedData = {
+          name: userData.name?.trim(),
+          email: userData.email?.trim().toLowerCase(),
+          password: userData.password
+        };
+
+        // Log the formatted data (excluding password)
         console.log('Sending registration request:', {
-          name: userData.name,
-          email: userData.email,
-          hasPassword: !!userData.password
+          name: formattedData.name,
+          email: formattedData.email,
+          hasPassword: !!formattedData.password
         });
 
-        // Make the request with explicit headers
-        const response = await api({
-          method: 'POST',
-          url: '/auth/register',
-          data: userData,
-          headers: {
-            'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'Access-Control-Allow-Origin': '*'
-          }
-        });
+        // Make the request
+        const response = await api.post('/auth/register', formattedData);
         
         const { token, user } = response.data;
         this.token = token;
