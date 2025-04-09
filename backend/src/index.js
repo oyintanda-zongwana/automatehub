@@ -74,26 +74,58 @@ mongoose.connection.on('disconnected', () => {
 app.use('/api/auth', authRoutes);
 app.use('/api/subscription', subscriptionRoutes);
 
-// Serve static assets
-// Set the correct path to the public folder
-app.use(express.static(path.join(__dirname, '..', 'public')));
-
-// API status route - only respond with JSON when explicitly requesting JSON via Accept header
-app.get('/api', (req, res) => {
+// API health check
+app.get('/api/health', (req, res) => {
   res.status(200).json({ 
-    message: 'AutomateHub API is running',
+    status: 'ok',
+    message: 'API is running',
+    timestamp: new Date().toISOString()
+  });
+});
+
+// Root API route
+app.get('/api', (req, res) => {
+  res.status(200).json({
+    name: 'AutomateHub API',
     version: '1.0.0',
     endpoints: [
-      '/api/auth',
-      '/api/subscription'
+      '/api/auth/register',
+      '/api/auth/login',
+      '/api/auth/me',
+      '/api/subscription/plans',
+      '/api/health'
     ]
   });
 });
 
-// Any routes not handled before will be handled by index.html (SPA fallback)
-app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+// Root route
+app.get('/', (req, res) => {
+  res.status(200).send(`
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <title>AutomateHub API</title>
+        <style>
+          body { font-family: Arial, sans-serif; margin: 40px; line-height: 1.6; }
+          h1 { color: #333; }
+          .endpoint { background: #f4f4f4; padding: 10px; margin-bottom: 10px; border-radius: 5px; }
+        </style>
+      </head>
+      <body>
+        <h1>AutomateHub API</h1>
+        <p>The API is running. Try the following endpoints:</p>
+        <div class="endpoint">/api/health - Check API status</div>
+        <div class="endpoint">/api - API documentation</div>
+        <div class="endpoint">/api/auth/register - Register a new user</div>
+        <div class="endpoint">/api/auth/login - Login</div>
+      </body>
+    </html>
+  `);
 });
+
+// Serve static assets
+// Set the correct path to the public folder
+app.use(express.static(path.join(__dirname, '..', 'public')));
 
 // Error handling middleware
 app.use((err, req, res, next) => {

@@ -15,38 +15,48 @@ router.post('/register', [
   body('email', 'Please include a valid email').isEmail(),
   body('password', 'Please enter a password with 6 or more characters').isLength({ min: 6 })
 ], async (req, res) => {
-  console.log('Registration request received:', {
-    body: req.body ? { 
-      ...req.body, 
-      password: req.body.password ? '[REDACTED]' : undefined 
-    } : 'No body',
-    contentType: req.headers['content-type'],
-    origin: req.headers.origin
-  });
-  
-  // Handle empty body or no body at all
-  if (!req.body || Object.keys(req.body).length === 0) {
-    console.error('Empty request body received');
-    return res.status(400).json({ 
-      errors: [{ msg: 'Empty request body received' }]
-    });
-  }
-  
-  const errors = validationResult(req);
-  if (!errors.isEmpty()) {
-    console.log('Validation errors:', errors.array());
-    return res.status(400).json({ errors: errors.array() });
-  }
-
-  const { name, email, password } = req.body;
-  console.log('Processing registration for:', { name, email, passwordLength: password?.length });
-
   try {
+    console.log('Registration request received:', {
+      contentType: req.headers['content-type'],
+      hasBody: !!req.body,
+      bodyKeys: req.body ? Object.keys(req.body) : []
+    });
+
+    if (!req.body || Object.keys(req.body).length === 0) {
+      return res.status(400).json({
+        errors: [{
+          type: 'body',
+          msg: 'Empty request body',
+          location: 'body'
+        }]
+      });
+    }
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      console.log('Validation errors:', errors.array());
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { name, email, password } = req.body;
+    console.log('Processing registration for:', { 
+      name, 
+      email, 
+      hasPassword: !!password
+    });
+
     let user = await User.findOne({ email });
 
     if (user) {
       console.log('User already exists:', email);
-      return res.status(400).json({ message: 'User already exists' });
+      return res.status(400).json({ 
+        errors: [{
+          type: 'email',
+          msg: 'User already exists',
+          path: 'email',
+          location: 'body'
+        }]
+      });
     }
 
     user = new User({
@@ -59,7 +69,7 @@ router.post('/register', [
     user.password = await bcrypt.hash(password, salt);
 
     await user.save();
-    console.log('User created successfully:', { id: user.id, email });
+    console.log('User created successfully:', { id: user.id });
 
     const payload = {
       userId: user.id
@@ -72,15 +82,22 @@ router.post('/register', [
       (err, token) => {
         if (err) {
           console.error('JWT sign error:', err);
-          throw err;
+          return res.status(500).json({ message: 'Error generating token' });
         }
-        console.log('Token generated for user:', { id: user.id });
-        res.json({ token });
+        
+        console.log('Token generated successfully');
+        return res.status(201).json({ token });
       }
     );
   } catch (err) {
-    console.error('Registration error:', err.message);
-    res.status(500).json({ message: 'Server error', error: err.message });
+    console.error('Registration error:', err);
+    return res.status(500).json({ 
+      errors: [{
+        type: 'server',
+        msg: 'Server error',
+        location: 'server'
+      }]
+    });
   }
 });
 
