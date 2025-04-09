@@ -11,24 +11,30 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async register(userData) {
       try {
-        // Format the data explicitly
-        const formattedData = {
-          name: userData.name?.trim(),
-          email: userData.email?.trim().toLowerCase(),
+        // Ensure all required fields are present
+        if (!userData.name || !userData.email || !userData.password) {
+          throw new Error('All fields are required');
+        }
+
+        // Format the data
+        const requestData = {
+          name: userData.name.trim(),
+          email: userData.email.trim().toLowerCase(),
           password: userData.password
         };
 
-        // Log the formatted data (excluding password)
-        console.log('Sending registration request:', {
-          name: formattedData.name,
-          email: formattedData.email,
-          hasPassword: !!formattedData.password
-        });
-
         // Make the request
-        const response = await api.post('/auth/register', formattedData);
+        const response = await api.post('/auth/register', requestData);
         
+        if (!response.data) {
+          throw new Error('No response data received');
+        }
+
         const { token, user } = response.data;
+        if (!token) {
+          throw new Error('No token received');
+        }
+
         this.token = token;
         this.user = user;
         this.isAuthenticated = true;
@@ -36,12 +42,10 @@ export const useAuthStore = defineStore('auth', {
         
         return response;
       } catch (error) {
-        // Enhanced error logging
         console.error('Registration error:', {
           status: error.response?.status,
           statusText: error.response?.statusText,
           data: error.response?.data,
-          headers: error.response?.headers,
           requestData: {
             name: userData.name,
             email: userData.email,

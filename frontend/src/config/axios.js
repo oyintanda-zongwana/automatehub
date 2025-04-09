@@ -6,7 +6,6 @@ const api = axios.create({
         'Content-Type': 'application/json',
         'Accept': 'application/json'
     },
-    withCredentials: true,
     timeout: 10000 // 10 seconds timeout
 });
 
@@ -16,10 +15,6 @@ api.interceptors.request.use(
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
-        // Add CORS headers
-        config.headers['Access-Control-Allow-Origin'] = '*';
-        config.headers['Access-Control-Allow-Methods'] = 'GET,PUT,POST,DELETE,PATCH,OPTIONS';
-        config.headers['Access-Control-Allow-Headers'] = 'Content-Type, Authorization';
         return config;
     },
     (error) => Promise.reject(error)
