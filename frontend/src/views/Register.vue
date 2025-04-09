@@ -127,8 +127,6 @@ const handleSubmit = async () => {
     const email = formData.value.email.trim().toLowerCase();
     const password = formData.value.password;
 
-    console.log('Validating form data');
-    
     // Client-side validation
     if (!name || !email || !password) {
       error.value = 'All fields are required';
@@ -149,67 +147,84 @@ const handleSubmit = async () => {
       return;
     }
 
-    console.log('Submitting registration data');
-    
-    // Send registration request with explicit JSON payload
+    // Prepare data as a plain JavaScript object
     const userData = {
       name,
       email,
       password
     };
     
-    console.log('Calling auth store register method with data:', {
-      ...userData,
+    console.log('Registration data prepared:', {
+      name,
+      email,
       password: '[REDACTED]'
     });
+
+    // Use XMLHttpRequest instead of fetch to have more control
+    const xhr = new XMLHttpRequest();
+    const API_URL = 'https://automatehub-pdpd.onrender.com/api';
     
-    // Direct API call to ensure proper format
-    try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://automatehub-pdpd.onrender.com/api'}/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Accept': 'application/json'
-        },
-        body: JSON.stringify(userData)
-      });
+    // Create a promise to handle the XHR
+    const registerPromise = new Promise((resolve, reject) => {
+      xhr.open('POST', `${API_URL}/auth/register`, true);
+      xhr.setRequestHeader('Content-Type', 'application/json');
+      xhr.setRequestHeader('Accept', 'application/json');
       
-      console.log('Raw response status:', response.status);
-      
-      const data = await response.json();
-      console.log('Registration response data:', data);
-      
-      if (!response.ok) {
-        throw { response: { data } };
-      }
-      
-      // Store the token
-      if (data.token) {
-        localStorage.setItem('token', data.token);
-        authStore.token = data.token;
-        authStore.isAuthenticated = true;
-        
-        // Try to fetch user data
-        try {
-          await authStore.fetchUser();
-        } catch (e) {
-          console.error('Failed to fetch user after registration:', e);
+      xhr.onload = function() {
+        if (this.status >= 200 && this.status < 300) {
+          try {
+            const response = JSON.parse(xhr.responseText);
+            resolve(response);
+          } catch (e) {
+            reject(new Error('Invalid JSON response'));
+          }
+        } else {
+          try {
+            const errorResponse = JSON.parse(xhr.responseText);
+            reject(errorResponse);
+          } catch (e) {
+            reject(new Error(`HTTP error ${this.status}`));
+          }
         }
-      }
+      };
       
-      console.log('Registration successful, redirecting to dashboard');
-      router.push('/dashboard');
-    } catch (fetchError) {
-      console.error('Fetch API error:', fetchError);
-      throw fetchError;
+      xhr.onerror = function() {
+        reject(new Error('Network error'));
+      };
+      
+      // Convert userData to a JSON string and send it
+      console.log('Sending data as JSON...');
+      const jsonData = JSON.stringify(userData);
+      console.log('JSON data:', jsonData);
+      xhr.send(jsonData);
+    });
+    
+    // Handle the response
+    const response = await registerPromise;
+    console.log('Registration successful:', response);
+    
+    // Store the token
+    if (response.token) {
+      localStorage.setItem('token', response.token);
+      authStore.token = response.token;
+      authStore.isAuthenticated = true;
+      
+      try {
+        await authStore.fetchUser();
+      } catch (e) {
+        console.error('Could not fetch user after registration:', e);
+      }
     }
+    
+    // Redirect to dashboard
+    router.push('/dashboard');
   } catch (err) {
     console.error('Registration failed:', err);
     
-    if (err.response?.data?.errors) {
-      error.value = err.response.data.errors.map(e => e.msg).join(', ');
-    } else if (err.response?.data?.message) {
-      error.value = err.response.data.message;
+    if (err.errors) {
+      error.value = err.errors.map(e => e.msg).join(', ');
+    } else if (err.message) {
+      error.value = err.message;
     } else {
       error.value = 'Registration failed. Please try again.';
     }
