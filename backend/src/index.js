@@ -31,14 +31,14 @@ app.use((req, res, next) => {
     method: req.method,
     url: req.url,
     origin: req.headers.origin,
-    contentType: req.headers['content-type'],
-    accept: req.headers.accept
+    contentType: req.headers['content-type']
   });
   next();
 });
 
+// Support JSON and URL-encoded bodies
 app.use(express.json());
-app.use(express.urlencoded({ extended: true })); // Add support for urlencoded bodies
+app.use(express.urlencoded({ extended: true }));
 app.use(morgan('dev'));
 
 // MongoDB connection options

@@ -16,19 +16,22 @@ router.post('/register', [
   body('password', 'Please enter a password with 6 or more characters').isLength({ min: 6 })
 ], async (req, res) => {
   console.log('Registration request received:', {
-    body: req.body,
+    body: req.body ? { 
+      ...req.body, 
+      password: req.body.password ? '[REDACTED]' : undefined 
+    } : 'No body',
     contentType: req.headers['content-type'],
     origin: req.headers.origin
   });
   
-  // Handle empty body
+  // Handle empty body or no body at all
   if (!req.body || Object.keys(req.body).length === 0) {
     console.error('Empty request body received');
     return res.status(400).json({ 
       errors: [{ msg: 'Empty request body received' }]
     });
   }
-
+  
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     console.log('Validation errors:', errors.array());
@@ -36,11 +39,7 @@ router.post('/register', [
   }
 
   const { name, email, password } = req.body;
-  console.log('Processing registration for:', { 
-    name, 
-    email, 
-    passwordProvided: !!password 
-  });
+  console.log('Processing registration for:', { name, email, passwordLength: password?.length });
 
   try {
     let user = await User.findOne({ email });
@@ -80,7 +79,7 @@ router.post('/register', [
       }
     );
   } catch (err) {
-    console.error('Registration error:', err);
+    console.error('Registration error:', err.message);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
