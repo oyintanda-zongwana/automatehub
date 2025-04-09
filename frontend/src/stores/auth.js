@@ -11,8 +11,11 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async register(userData) {
       try {
+        console.log('Auth store: register action called');
+        
         // Ensure all required fields are present
         if (!userData.name || !userData.email || !userData.password) {
+          console.error('Auth store: Missing required fields');
           throw new Error('All fields are required');
         }
 
@@ -23,26 +26,45 @@ export const useAuthStore = defineStore('auth', {
           password: userData.password
         };
 
-        // Make the request
-        const response = await api.post('/auth/register', requestData);
+        console.log('Auth store: Sending registration request');
+        
+        // Make the request with explicit content type
+        const response = await api.post('/auth/register', requestData, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        console.log('Auth store: Registration response received');
         
         if (!response.data) {
+          console.error('Auth store: No response data received');
           throw new Error('No response data received');
         }
 
-        const { token, user } = response.data;
+        const { token } = response.data;
         if (!token) {
+          console.error('Auth store: No token received in response');
           throw new Error('No token received');
         }
 
+        console.log('Auth store: Setting authentication state');
         this.token = token;
-        this.user = user;
         this.isAuthenticated = true;
         localStorage.setItem('token', token);
         
+        // Fetch user data after successful registration
+        try {
+          await this.fetchUser();
+        } catch (fetchError) {
+          console.error('Auth store: Failed to fetch user after registration', fetchError);
+          // Continue even if fetch user fails
+        }
+        
         return response;
       } catch (error) {
-        console.error('Registration error:', {
+        console.error('Auth store: Registration error:', {
+          message: error.message,
           status: error.response?.status,
           statusText: error.response?.statusText,
           data: error.response?.data,

@@ -107,7 +107,8 @@ const formData = ref({
 // Add watcher to log form data changes
 watch(formData, (newVal) => {
   console.log('Form data changed:', {
-    ...newVal,
+    name: newVal.name,
+    email: newVal.email,
     password: newVal.password ? '[REDACTED]' : undefined
   });
 }, { deep: true });
@@ -117,6 +118,7 @@ const loading = ref(false);
 
 const handleSubmit = async () => {
   try {
+    console.log('Form submission started');
     loading.value = true;
     error.value = '';
     
@@ -125,6 +127,8 @@ const handleSubmit = async () => {
     const email = formData.value.email.trim().toLowerCase();
     const password = formData.value.password;
 
+    console.log('Validating form data');
+    
     // Client-side validation
     if (!name || !email || !password) {
       error.value = 'All fields are required';
@@ -145,13 +149,19 @@ const handleSubmit = async () => {
       return;
     }
 
-    // Send registration request
-    await authStore.register({
+    console.log('Submitting registration data');
+    
+    // Send registration request with explicit JSON payload
+    const userData = {
       name,
       email,
       password
-    });
+    };
     
+    console.log('Calling auth store register method');
+    await authStore.register(userData);
+    
+    console.log('Registration successful, redirecting to dashboard');
     router.push('/dashboard');
   } catch (err) {
     console.error('Registration failed:', err);
