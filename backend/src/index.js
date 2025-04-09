@@ -3,11 +3,17 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import authRoutes from './routes/auth.js';
 import subscriptionRoutes from './routes/subscription.js';
 import scheduleTaskReset from './cron/resetTaskUsage.js';
 
 dotenv.config();
+
+// ES modules fix for __dirname
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const app = express();
 
@@ -25,7 +31,8 @@ app.use((req, res, next) => {
     method: req.method,
     url: req.url,
     origin: req.headers.origin,
-    contentType: req.headers['content-type']
+    contentType: req.headers['content-type'],
+    accept: req.headers.accept
   });
   next();
 });
@@ -63,12 +70,16 @@ mongoose.connection.on('disconnected', () => {
   console.log('MongoDB disconnected');
 });
 
-// Routes
+// API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/subscription', subscriptionRoutes);
 
-// Root route
-app.get('/', (req, res) => {
+// Serve static assets
+// Set the correct path to the public folder
+app.use(express.static(path.join(__dirname, '..', 'public')));
+
+// API status route - only respond with JSON when explicitly requesting JSON via Accept header
+app.get('/api', (req, res) => {
   res.status(200).json({ 
     message: 'AutomateHub API is running',
     version: '1.0.0',
@@ -79,18 +90,19 @@ app.get('/', (req, res) => {
   });
 });
 
-// 404 handler for undefined routes
-app.use((req, res) => {
-  res.status(404).json({ message: 'Route not found' });
+// Any routes not handled before will be handled by index.html (SPA fallback)
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
 });
 
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error(err.stack);
-  res.status(500).json({ message: 'Something went wrong!' });
+  console.error('Server error:', err);
+  res.status(500).json({ message: 'Something went wrong!', error: err.message });
 });
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  console.log(`Environment: ${process.env.NODE_ENV || 'development'}`);
 }); 
