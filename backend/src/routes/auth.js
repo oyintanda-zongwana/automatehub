@@ -17,12 +17,18 @@ router.post('/register', [
 ], async (req, res) => {
   console.log('Registration request received:', {
     body: req.body,
-    headers: {
-      'content-type': req.headers['content-type'],
-      origin: req.headers.origin
-    }
+    contentType: req.headers['content-type'],
+    origin: req.headers.origin
   });
   
+  // Handle empty body
+  if (!req.body || Object.keys(req.body).length === 0) {
+    console.error('Empty request body received');
+    return res.status(400).json({ 
+      errors: [{ msg: 'Empty request body received' }]
+    });
+  }
+
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     console.log('Validation errors:', errors.array());
@@ -30,7 +36,11 @@ router.post('/register', [
   }
 
   const { name, email, password } = req.body;
-  console.log('Processing registration for:', { name, email, passwordLength: password?.length });
+  console.log('Processing registration for:', { 
+    name, 
+    email, 
+    passwordProvided: !!password 
+  });
 
   try {
     let user = await User.findOne({ email });
@@ -58,7 +68,7 @@ router.post('/register', [
 
     jwt.sign(
       payload,
-      process.env.JWT_SECRET,
+      process.env.JWT_SECRET || 'devjwtsecret',
       { expiresIn: '24h' },
       (err, token) => {
         if (err) {
@@ -71,7 +81,7 @@ router.post('/register', [
     );
   } catch (err) {
     console.error('Registration error:', err);
-    res.status(500).send('Server error');
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
 

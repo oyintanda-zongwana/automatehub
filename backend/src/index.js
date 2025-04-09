@@ -12,8 +12,26 @@ dotenv.config();
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: ['https://automatehub-pi.vercel.app', 'http://localhost:5173'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
+  credentials: true
+}));
+
+// Add request logging middleware
+app.use((req, res, next) => {
+  console.log('Incoming request:', {
+    method: req.method,
+    url: req.url,
+    origin: req.headers.origin,
+    contentType: req.headers['content-type']
+  });
+  next();
+});
+
 app.use(express.json());
+app.use(express.urlencoded({ extended: true })); // Add support for urlencoded bodies
 app.use(morgan('dev'));
 
 // MongoDB connection options
@@ -59,6 +77,11 @@ app.get('/', (req, res) => {
       '/api/subscription'
     ]
   });
+});
+
+// 404 handler for undefined routes
+app.use((req, res) => {
+  res.status(404).json({ message: 'Route not found' });
 });
 
 // Error handling middleware
