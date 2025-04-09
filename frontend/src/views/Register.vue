@@ -8,7 +8,7 @@
 
     <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
       <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-        <form class="space-y-6" @submit.prevent="handleSubmit" encType="application/json">
+        <form class="space-y-6" @submit.prevent="handleSubmit">
           <div v-if="error" class="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
             <span class="block sm:inline">{{ error }}</span>
           </div>
@@ -158,11 +158,51 @@ const handleSubmit = async () => {
       password
     };
     
-    console.log('Calling auth store register method');
-    await authStore.register(userData);
+    console.log('Calling auth store register method with data:', {
+      ...userData,
+      password: '[REDACTED]'
+    });
     
-    console.log('Registration successful, redirecting to dashboard');
-    router.push('/dashboard');
+    // Direct API call to ensure proper format
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL || 'https://automatehub-pdpd.onrender.com/api'}/auth/register`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify(userData)
+      });
+      
+      console.log('Raw response status:', response.status);
+      
+      const data = await response.json();
+      console.log('Registration response data:', data);
+      
+      if (!response.ok) {
+        throw { response: { data } };
+      }
+      
+      // Store the token
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        authStore.token = data.token;
+        authStore.isAuthenticated = true;
+        
+        // Try to fetch user data
+        try {
+          await authStore.fetchUser();
+        } catch (e) {
+          console.error('Failed to fetch user after registration:', e);
+        }
+      }
+      
+      console.log('Registration successful, redirecting to dashboard');
+      router.push('/dashboard');
+    } catch (fetchError) {
+      console.error('Fetch API error:', fetchError);
+      throw fetchError;
+    }
   } catch (err) {
     console.error('Registration failed:', err);
     
