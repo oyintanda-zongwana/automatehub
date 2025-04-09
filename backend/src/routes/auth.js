@@ -15,9 +15,13 @@ router.post('/register', [
   body('email', 'Please include a valid email').isEmail(),
   body('password', 'Please enter a password with 6 or more characters').isLength({ min: 6 })
 ], async (req, res) => {
+  // Log the incoming request
   console.log('Registration request received:', {
-    ...req.body,
-    password: '[REDACTED]'
+    headers: req.headers,
+    body: {
+      ...req.body,
+      password: req.body.password ? '[REDACTED]' : undefined
+    }
   });
 
   const errors = validationResult(req);
@@ -32,22 +36,19 @@ router.post('/register', [
     let user = await User.findOne({ email });
 
     if (user) {
-      console.log('User already exists:', email);
       return res.status(400).json({ message: 'User already exists' });
     }
 
     user = new User({
       name,
       email,
-      password,
-      role: 'user'  // Set default role
+      password
     });
 
     const salt = await bcrypt.genSalt(10);
     user.password = await bcrypt.hash(password, salt);
 
     await user.save();
-    console.log('User created successfully:', email);
 
     const payload = {
       userId: user.id
@@ -59,19 +60,11 @@ router.post('/register', [
       { expiresIn: '24h' },
       (err, token) => {
         if (err) throw err;
-        res.json({ 
-          token,
-          user: {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            role: user.role
-          }
-        });
+        res.json({ token });
       }
     );
   } catch (err) {
-    console.error('Registration error:', err.message);
+    console.error(err.message);
     res.status(500).send('Server error');
   }
 });
