@@ -15,15 +15,14 @@ router.post('/register', [
   body('email', 'Please include a valid email').isEmail(),
   body('password', 'Please enter a password with 6 or more characters').isLength({ min: 6 })
 ], async (req, res) => {
-  // Log the incoming request
   console.log('Registration request received:', {
-    headers: req.headers,
-    body: {
-      ...req.body,
-      password: req.body.password ? '[REDACTED]' : undefined
+    body: req.body,
+    headers: {
+      'content-type': req.headers['content-type'],
+      origin: req.headers.origin
     }
   });
-
+  
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     console.log('Validation errors:', errors.array());
@@ -31,11 +30,13 @@ router.post('/register', [
   }
 
   const { name, email, password } = req.body;
+  console.log('Processing registration for:', { name, email, passwordLength: password?.length });
 
   try {
     let user = await User.findOne({ email });
 
     if (user) {
+      console.log('User already exists:', email);
       return res.status(400).json({ message: 'User already exists' });
     }
 
@@ -49,6 +50,7 @@ router.post('/register', [
     user.password = await bcrypt.hash(password, salt);
 
     await user.save();
+    console.log('User created successfully:', { id: user.id, email });
 
     const payload = {
       userId: user.id
@@ -59,12 +61,16 @@ router.post('/register', [
       process.env.JWT_SECRET,
       { expiresIn: '24h' },
       (err, token) => {
-        if (err) throw err;
+        if (err) {
+          console.error('JWT sign error:', err);
+          throw err;
+        }
+        console.log('Token generated for user:', { id: user.id });
         res.json({ token });
       }
     );
   } catch (err) {
-    console.error(err.message);
+    console.error('Registration error:', err);
     res.status(500).send('Server error');
   }
 });
