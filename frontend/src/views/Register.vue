@@ -147,86 +147,56 @@ const handleSubmit = async () => {
       return;
     }
 
-    // Prepare data as a plain JavaScript object
-    const userData = {
-      name,
-      email,
-      password
-    };
-    
-    console.log('Registration data prepared:', {
-      name,
-      email,
+    // Create payload
+    const userData = { name, email, password };
+    console.log('Sending registration data:', {
+      ...userData,
       password: '[REDACTED]'
     });
 
-    // Use XMLHttpRequest instead of fetch to have more control
-    const xhr = new XMLHttpRequest();
+    // Create Axios instance directly for this request only
+    const axios = (await import('axios')).default;
     const API_URL = 'https://automatehub-pdpd.onrender.com/api';
     
-    // Create a promise to handle the XHR
-    const registerPromise = new Promise((resolve, reject) => {
-      xhr.open('POST', `${API_URL}/auth/register`, true);
-      xhr.setRequestHeader('Content-Type', 'application/json');
-      xhr.setRequestHeader('Accept', 'application/json');
-      
-      xhr.onload = function() {
-        if (this.status >= 200 && this.status < 300) {
-          try {
-            const response = JSON.parse(xhr.responseText);
-            resolve(response);
-          } catch (e) {
-            reject(new Error('Invalid JSON response'));
-          }
-        } else {
-          try {
-            const errorResponse = JSON.parse(xhr.responseText);
-            reject(errorResponse);
-          } catch (e) {
-            reject(new Error(`HTTP error ${this.status}`));
-          }
-        }
-      };
-      
-      xhr.onerror = function() {
-        reject(new Error('Network error'));
-      };
-      
-      // Convert userData to a JSON string and send it
-      console.log('Sending data as JSON...');
-      const jsonData = JSON.stringify(userData);
-      console.log('JSON data:', jsonData);
-      xhr.send(jsonData);
+    // Make direct axios call
+    const response = await axios.post(`${API_URL}/auth/register`, userData, {
+      headers: {
+        'Content-Type': 'application/json'
+      }
     });
-    
-    // Handle the response
-    const response = await registerPromise;
-    console.log('Registration successful:', response);
+
+    console.log('Registration successful:', response.data);
     
     // Store the token
-    if (response.token) {
-      localStorage.setItem('token', response.token);
-      authStore.token = response.token;
+    if (response.data.token) {
+      localStorage.setItem('token', response.data.token);
+      authStore.token = response.data.token;
       authStore.isAuthenticated = true;
       
+      // Try to fetch user data after registration
       try {
         await authStore.fetchUser();
       } catch (e) {
-        console.error('Could not fetch user after registration:', e);
+        console.error('Failed to fetch user after registration:', e);
       }
     }
     
-    // Redirect to dashboard
     router.push('/dashboard');
   } catch (err) {
     console.error('Registration failed:', err);
-    
-    if (err.errors) {
-      error.value = err.errors.map(e => e.msg).join(', ');
-    } else if (err.message) {
-      error.value = err.message;
+    if (err.response) {
+      console.error('Error response:', err.response.data);
+      if (err.response.data.errors) {
+        error.value = err.response.data.errors.map(e => e.msg).join(', ');
+      } else if (err.response.data.message) {
+        error.value = err.response.data.message;
+      } else {
+        error.value = `Error ${err.response.status}: ${err.response.statusText}`;
+      }
+    } else if (err.request) {
+      error.value = 'No response received from server';
     } else {
-      error.value = 'Registration failed. Please try again.';
+      error.value = err.message || 'Registration failed';
     }
   } finally {
     loading.value = false;
