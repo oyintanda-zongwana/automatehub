@@ -33,9 +33,21 @@ export const useAuthStore = defineStore('auth', {
           password: credentials.password
         };
 
+        console.log('Attempting login with:', { email: loginData.email });
+
         // Make login request
-        const response = await api.post('/auth/login', loginData);
+        const response = await api.post('/auth/login', loginData, {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
         
+        console.log('Login response:', {
+          status: response.status,
+          hasData: !!response.data,
+          hasToken: !!response.data?.token
+        });
+
         if (!response.data || !response.data.token) {
           throw new Error('Invalid response from server');
         }
@@ -55,12 +67,23 @@ export const useAuthStore = defineStore('auth', {
         
         return true;
       } catch (error) {
-        console.error('Login error:', error);
+        console.error('Login error:', {
+          message: error.message,
+          response: error.response?.data,
+          status: error.response?.status
+        });
         
         // Handle specific error cases
         if (error.response) {
           if (error.response.status === 400) {
-            throw new Error('Invalid email or password');
+            if (error.response.data.message) {
+              throw new Error(error.response.data.message);
+            } else if (error.response.data.errors) {
+              const messages = error.response.data.errors.map(e => e.msg).join(', ');
+              throw new Error(messages);
+            } else {
+              throw new Error('Invalid email or password');
+            }
           } else if (error.response.status === 401) {
             throw new Error('Unauthorized access');
           } else if (error.response.status === 500) {
