@@ -22,28 +22,18 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async login(credentials) {
       try {
-        console.log('Received credentials:', credentials);
-
         // Validate credentials
-        if (!credentials) {
-          throw new Error('No credentials provided');
+        if (!credentials || !credentials.email || !credentials.password) {
+          throw new Error('Email and password are required');
         }
 
-        if (!credentials.email) {
-          throw new Error('Email is required');
-        }
-
-        if (!credentials.password) {
-          throw new Error('Password is required');
-        }
-
-        // Format credentials to match backend expectations
+        // Format credentials
         const loginData = {
-          email: credentials.email.trim(),
+          email: credentials.email.trim().toLowerCase(),
           password: credentials.password
         };
 
-        console.log('Attempting login with:', { email: loginData.email });
+        // Make login request
         const response = await api.post('/auth/login', loginData);
         
         if (!response.data || !response.data.token) {
@@ -62,24 +52,22 @@ export const useAuthStore = defineStore('auth', {
         
         // Fetch user data
         await this.fetchUser();
+        
         return true;
       } catch (error) {
-        console.error('Login error details:', {
-          message: error.message,
-          response: error.response?.data,
-          status: error.response?.status,
-          credentials: credentials ? { 
-            email: credentials.email,
-            hasPassword: !!credentials.password 
-          } : 'undefined'
-        });
-
-        if (error.response?.data?.message) {
-          throw new Error(error.response.data.message);
-        } else if (error.response) {
-          throw new Error('Login failed. Please check your credentials.');
+        console.error('Login error:', error);
+        
+        // Handle specific error cases
+        if (error.response) {
+          if (error.response.status === 400) {
+            throw new Error('Invalid email or password');
+          } else if (error.response.status === 401) {
+            throw new Error('Unauthorized access');
+          } else if (error.response.status === 500) {
+            throw new Error('Server error. Please try again later.');
+          }
         } else if (error.request) {
-          throw new Error('No response from server. Please check if the server is running.');
+          throw new Error('No response from server. Please check your connection.');
         } else {
           throw error;
         }
@@ -130,24 +118,11 @@ export const useAuthStore = defineStore('auth', {
     },
 
     async logout() {
-      try {
-        // Clear local state
-        this.token = null;
-        this.user = null;
-        this.isAuthenticated = false;
-        localStorage.removeItem('token');
-        delete api.defaults.headers.common['Authorization'];
-        return true;
-      } catch (error) {
-        console.error('Logout error:', error);
-        // Even if there's an error, we should still clear the local state
-        this.token = null;
-        this.user = null;
-        this.isAuthenticated = false;
-        localStorage.removeItem('token');
-        delete api.defaults.headers.common['Authorization'];
-        return true;
-      }
+      this.token = null;
+      this.user = null;
+      this.isAuthenticated = false;
+      localStorage.removeItem('token');
+      delete api.defaults.headers.common['Authorization'];
     },
 
     async fetchUser() {
@@ -193,13 +168,6 @@ export const useAuthStore = defineStore('auth', {
         this.isAuthenticated = true;
         api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         this.fetchUser();
-      }
-    },
-
-    // Set up axios defaults
-    setupAxios() {
-      if (this.token) {
-        api.defaults.headers.common['Authorization'] = `Bearer ${this.token}`;
       }
     },
 
