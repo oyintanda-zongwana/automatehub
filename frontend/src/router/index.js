@@ -5,6 +5,7 @@ import Login from '../views/Login.vue';
 import Dashboard from '../views/Dashboard.vue';
 import CreateWorkflow from '../views/CreateWorkflow.vue';
 import PricingPlans from '../components/PricingPlans.vue';
+import { useAuthStore } from '../stores/auth';
 
 const routes = [
   {
@@ -47,11 +48,27 @@ const router = createRouter({
 });
 
 // Navigation guard
-router.beforeEach((to, from, next) => {
-  const isAuthenticated = localStorage.getItem('token') !== null;
+router.beforeEach(async (to, from, next) => {
+  const token = localStorage.getItem('token');
+  const isAuthenticated = token !== null;
   
-  if (to.meta.requiresAuth && !isAuthenticated) {
-    next('/login');
+  if (to.meta.requiresAuth) {
+    if (!isAuthenticated) {
+      next('/login');
+      return;
+    }
+    
+    try {
+      // Validate token by fetching user data
+      const authStore = useAuthStore();
+      await authStore.fetchUser();
+      next();
+    } catch (error) {
+      console.error('Token validation failed:', error);
+      // Clear invalid token
+      localStorage.removeItem('token');
+      next('/login');
+    }
   } else {
     next();
   }

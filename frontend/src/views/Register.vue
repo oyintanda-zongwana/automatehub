@@ -134,55 +134,16 @@ export default {
           password: this.password
         };
         
-        console.log('Sending data:', {
-          name: data.name,
-          email: data.email,
-          password: '[REDACTED]'
-        });
+        // Use the auth store for registration
+        const { useAuthStore } = require('../stores/auth');
+        const authStore = useAuthStore();
+        await authStore.register(data);
         
-        // Direct fetch call with explicit JSON conversion
-        const response = await fetch('https://automatehub-pdpd.onrender.com/api/auth/register', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data)
-        });
-        
-        const responseData = await response.json();
-        
-        console.log('Response status:', response.status);
-        console.log('Response data:', responseData);
-        
-        if (!response.ok) {
-          if (responseData.errors) {
-            this.error = responseData.errors.map(e => e.msg).join(', ');
-          } else if (responseData.message) {
-            this.error = responseData.message;
-          } else {
-            this.error = `Error ${response.status}: ${response.statusText}`;
-          }
-          this.loading = false;
-          return;
-        }
-        
-        // Handle successful registration
-        if (responseData.token) {
-          localStorage.setItem('token', responseData.token);
-          
-          // Use the Pinia store properly
-          const { useAuthStore } = require('../stores/auth');
-          const authStore = useAuthStore();
-          authStore.token = responseData.token;
-          authStore.isAuthenticated = true;
-          
-          this.$router.push('/dashboard');
-        } else {
-          throw new Error('No token received from server');
-        }
+        // Redirect to dashboard on success
+        this.$router.push('/dashboard');
       } catch (err) {
         console.error('Registration error:', err);
-        this.error = err.message || 'Registration failed';
+        this.error = err.response?.data?.message || err.message || 'Registration failed. Please try again.';
       } finally {
         this.loading = false;
       }
