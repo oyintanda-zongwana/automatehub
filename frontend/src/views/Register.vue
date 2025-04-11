@@ -8,7 +8,7 @@
 
     <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
       <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-        <form class="space-y-6" @submit.prevent="handleSubmit">
+        <div class="space-y-6">
           <div v-if="error" class="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
             <span class="block sm:inline">{{ error }}</span>
           </div>
@@ -62,7 +62,8 @@
 
           <div>
             <button
-              type="submit"
+              type="button"
+              @click="handleSubmit"
               :disabled="loading"
               class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
             >
@@ -70,7 +71,7 @@
               <span v-else>Register</span>
             </button>
           </div>
-        </form>
+        </div>
 
         <div class="mt-6">
           <div class="relative">
@@ -90,7 +91,7 @@
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
+import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 
@@ -103,15 +104,6 @@ const formData = ref({
   email: '',
   password: ''
 });
-
-// Add watcher to log form data changes
-watch(formData, (newVal) => {
-  console.log('Form data changed:', {
-    name: newVal.name,
-    email: newVal.email,
-    password: newVal.password ? '[REDACTED]' : undefined
-  });
-}, { deep: true });
 
 const error = ref('');
 const loading = ref(false);
@@ -147,45 +139,56 @@ const handleSubmit = async () => {
       return;
     }
 
-    // Create payload
-    const userData = { name, email, password };
+    // Import axios dynamically to ensure it's available
+    const axios = (await import('axios')).default;
+    
+    // Log what we're about to send
     console.log('Sending registration data:', {
-      ...userData,
+      name,
+      email,
       password: '[REDACTED]'
     });
 
-    // Create Axios instance directly for this request only
-    const axios = (await import('axios')).default;
+    // Send registration request with explicitly constructed data
     const API_URL = 'https://automatehub-pdpd.onrender.com/api';
-    
-    // Make direct axios call
-    const response = await axios.post(`${API_URL}/auth/register`, userData, {
-      headers: {
-        'Content-Type': 'application/json'
-      }
+    const response = await axios({
+      method: 'post',
+      url: `${API_URL}/auth/register`,
+      headers: { 
+        'Content-Type': 'application/json',
+        'Accept': 'application/json'
+      },
+      data: JSON.stringify({
+        name,
+        email,
+        password
+      })
     });
 
-    console.log('Registration successful:', response.data);
+    console.log('Registration response:', response.data);
     
-    // Store the token
-    if (response.data.token) {
+    // Handle successful registration
+    if (response.data && response.data.token) {
       localStorage.setItem('token', response.data.token);
       authStore.token = response.data.token;
       authStore.isAuthenticated = true;
       
-      // Try to fetch user data after registration
       try {
         await authStore.fetchUser();
       } catch (e) {
         console.error('Failed to fetch user after registration:', e);
       }
+      
+      router.push('/dashboard');
+    } else {
+      throw new Error('No token received from server');
     }
-    
-    router.push('/dashboard');
   } catch (err) {
     console.error('Registration failed:', err);
+    
     if (err.response) {
       console.error('Error response:', err.response.data);
+      
       if (err.response.data.errors) {
         error.value = err.response.data.errors.map(e => e.msg).join(', ');
       } else if (err.response.data.message) {

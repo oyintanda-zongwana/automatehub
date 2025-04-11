@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Test</title>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 500px; margin: 0 auto; padding: 20px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 5px; }
+        input { width: 100%; padding: 8px; box-sizing: border-box; }
+        button { padding: 10px 15px; background: #4a76a8; color: white; border: none; cursor: pointer; }
+        .error { color: red; margin-top: 10px; }
+        .success { color: green; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>Registration Test</h1>
+    
+    <form id="registerForm">
+        <div class="form-group">
+            <label for="name">Full Name</label>
+            <input type="text" id="name" name="name" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" name="password" required minlength="6">
+        </div>
+        
+        <button type="submit">Register</button>
+    </form>
+    
+    <div id="result"></div>
+    <div id="requestInfo"></div>
+    
+    <script>
+        document.getElementById('registerForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value.trim();
+            const email = document.getElementById('email').value.trim().toLowerCase();
+            const password = document.getElementById('password').value;
+            
+            // Show what we're sending
+            document.getElementById('requestInfo').innerHTML = `
+                <h3>Request Data:</h3>
+                <pre>
+{
+  "name": "${name}",
+  "email": "${email}",
+  "password": "[REDACTED]"
+}
+                </pre>
+            `;
+            
+            try {
+                const response = await axios.post('https://automatehub-pdpd.onrender.com/api/auth/register', {
+                    name,
+                    email,
+                    password
+                }, {
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                });
+                
+                document.getElementById('result').innerHTML = `
+                    <div class="success">
+                        <h3>Registration Successful!</h3>
+                        <p>Token: ${response.data.token}</p>
+                    </div>
+                `;
+            } catch (error) {
+                console.error('Registration error:', error);
+                
+                let errorMessage = 'Registration failed.';
+                
+                if (error.response) {
+                    console.log('Error response:', error.response.data);
+                    
+                    if (error.response.data.errors) {
+                        errorMessage = error.response.data.errors.map(e => e.msg).join('<br>');
+                    } else if (error.response.data.message) {
+                        errorMessage = error.response.data.message;
+                    }
+                }
+                
+                document.getElementById('result').innerHTML = `
+                    <div class="error">
+                        <h3>Error</h3>
+                        <p>${errorMessage}</p>
+                    </div>
+                `;
+            }
+        });
+    </script>
+</body>
+</html> 
