@@ -1,4 +1,4 @@
-const mongoose = require('mongoose');
+import mongoose from 'mongoose';
 
 const workflowSchema = new mongoose.Schema({
   name: {
@@ -107,4 +107,4 @@ function generateSecret(length) {
 
 const Workflow = mongoose.model('Workflow', workflowSchema);
 
-module.exports = Workflow; 
+export default Workflow; 

@@ -1,14 +1,24 @@
-const express = require('express');
-const mongoose = require('mongoose');
-const cors = require('cors');
-const morgan = require('morgan');
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-require('dotenv').config();
+import express from 'express';
+import mongoose from 'mongoose';
+import cors from 'cors';
+import morgan from 'morgan';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import dotenv from 'dotenv';
+import { fileURLToPath } from 'url';
+import { dirname } from 'path';
 
-const authRoutes = require('./routes/auth');
-const workflowRoutes = require('./routes/workflowRoutes');
-const { errorHandler } = require('./middleware/errorHandler');
+// Load environment variables
+dotenv.config();
+
+// Get directory name for ES modules
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+
+// Import routes
+import authRoutes from './routes/auth.js';
+import workflowRoutes from './routes/workflowRoutes.js';
+import { errorHandler } from './middleware/errorHandler.js';
 
 const app = express();
 
@@ -39,8 +49,8 @@ app.use('/api/workflows', workflowRoutes);
 app.use(errorHandler);
 
 // Load and schedule existing workflows
-const Workflow = require('./models/Workflow');
-const { scheduleWorkflow } = require('./controllers/workflowController');
+import Workflow from './models/Workflow.js';
+import { scheduleWorkflow } from './controllers/workflowController.js';
 
 async function loadExistingWorkflows() {
   try {

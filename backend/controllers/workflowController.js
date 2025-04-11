@@ -1,8 +1,8 @@
-const Workflow = require('../models/Workflow');
-const { executeHttpAction, executeEmailAction, executeAiAction } = require('../services/actionExecutor');
-const { validateWorkflow } = require('../utils/validation');
-const cron = require('node-cron');
-const EventEmitter = require('events');
+import Workflow from '../models/Workflow.js';
+import { executeHttpAction, executeEmailAction, executeAiAction } from '../services/actionExecutor.js';
+import { validateWorkflow } from '../utils/validation.js';
+import cron from 'node-cron';
+import { EventEmitter } from 'events';
 
 // Create an event emitter for workflow events
 const workflowEvents = new EventEmitter();
@@ -11,7 +11,7 @@ const workflowEvents = new EventEmitter();
 const scheduledJobs = new Map();
 
 // Get all workflows for a user
-exports.getWorkflows = async (req, res) => {
+export const getWorkflows = async (req, res) => {
   try {
     const workflows = await Workflow.find({ user: req.user._id });
     res.json(workflows);
@@ -21,7 +21,7 @@ exports.getWorkflows = async (req, res) => {
 };
 
 // Get a single workflow
-exports.getWorkflow = async (req, res) => {
+export const getWorkflow = async (req, res) => {
   try {
     const workflow = await Workflow.findOne({
       _id: req.params.id,
@@ -39,7 +39,7 @@ exports.getWorkflow = async (req, res) => {
 };
 
 // Create a new workflow
-exports.createWorkflow = async (req, res) => {
+export const createWorkflow = async (req, res) => {
   try {
     // Validate workflow data
     const validationError = validateWorkflow(req.body);
@@ -66,7 +66,7 @@ exports.createWorkflow = async (req, res) => {
 };
 
 // Update a workflow
-exports.updateWorkflow = async (req, res) => {
+export const updateWorkflow = async (req, res) => {
   try {
     // Validate workflow data
     const validationError = validateWorkflow(req.body);
@@ -100,7 +100,7 @@ exports.updateWorkflow = async (req, res) => {
 };
 
 // Delete a workflow
-exports.deleteWorkflow = async (req, res) => {
+export const deleteWorkflow = async (req, res) => {
   try {
     const workflow = await Workflow.findOneAndDelete({
       _id: req.params.id,
@@ -121,7 +121,7 @@ exports.deleteWorkflow = async (req, res) => {
 };
 
 // Toggle workflow status
-exports.toggleWorkflow = async (req, res) => {
+export const toggleWorkflow = async (req, res) => {
   try {
     const workflow = await Workflow.findOne({
       _id: req.params.id,
@@ -151,7 +151,7 @@ exports.toggleWorkflow = async (req, res) => {
 };
 
 // Execute a workflow manually
-exports.executeWorkflow = async (req, res) => {
+export const executeWorkflow = async (req, res) => {
   try {
     const workflow = await Workflow.findOne({
       _id: req.params.id,
@@ -173,7 +173,7 @@ exports.executeWorkflow = async (req, res) => {
 };
 
 // Handle webhook triggers
-exports.handleWebhook = async (req, res) => {
+export const handleWebhook = async (req, res) => {
   try {
     const [workflowId, secret] = req.params.path.split('/');
     
@@ -199,7 +199,7 @@ exports.handleWebhook = async (req, res) => {
 };
 
 // Handle event triggers
-exports.handleEvent = async (eventType, eventData) => {
+export const handleEvent = async (eventType, eventData) => {
   try {
     const workflows = await Workflow.find({
       'trigger.type': 'event',
@@ -248,75 +248,53 @@ function unscheduleWorkflow(workflowId) {
   }
 }
 
-// Execute workflow actions
+// Execute a workflow
 async function executeWorkflow(workflow, triggerData = {}) {
   try {
+    // Update last run time
     workflow.lastRun = new Date();
-    let success = true;
+    await workflow.save();
 
     // Execute each action in sequence
     for (const action of workflow.actions) {
       try {
-        let result;
         switch (action.type) {
           case 'http':
-            result = await executeHttpAction(action.config);
+            await executeHttpAction(action.config, triggerData);
             break;
           case 'email':
-            result = await executeEmailAction(action.config);
+            await executeEmailAction(action.config, triggerData);
             break;
           case 'ai':
-            result = await executeAiAction(action.config);
+            await executeAiAction(action.config, triggerData);
             break;
-          default:
-            throw new Error(`Unsupported action type: ${action.type}`);
         }
-
-        // Log success
-        workflow.logs.push({
-          timestamp: new Date(),
-          level: 'info',
-          message: `Action ${action.type} executed successfully`,
-          details: result
-        });
       } catch (error) {
-        success = false;
-        // Log error
-        workflow.logs.push({
-          timestamp: new Date(),
-          level: 'error',
-          message: `Action ${action.type} failed: ${error.message}`,
-          details: error
-        });
-        break;
+        console.error(`Error executing ${action.type} action:`, error);
+        throw error;
       }
     }
 
-    // Update workflow statistics
-    if (success) {
-      workflow.successCount++;
-    } else {
-      workflow.failureCount++;
-    }
-
-    // Calculate next run for scheduled workflows
-    if (workflow.trigger.type === 'schedule' && workflow.status === 'active') {
-      workflow.nextRun = cron.nextDate(workflow.trigger.config.schedule);
-    }
-
+    // Update success count
+    workflow.successCount += 1;
     await workflow.save();
-
-    // Emit workflow execution event
-    workflowEvents.emit('workflowExecuted', {
-      workflowId: workflow._id,
-      success,
-      timestamp: new Date()
-    });
   } catch (error) {
-    console.error('Error executing workflow:', error);
+    // Update failure count
+    workflow.failureCount += 1;
+    workflow.status = 'error';
+    await workflow.save();
     throw error;
   }
 }
 
-// Export event emitter for external use
-exports.workflowEvents = workflowEvents; 
+export default {
+  getWorkflows,
+  getWorkflow,
+  createWorkflow,
+  updateWorkflow,
+  deleteWorkflow,
+  toggleWorkflow,
+  executeWorkflow,
+  handleWebhook,
+  handleEvent
+}; 

@@ -1,7 +1,8 @@
-const express = require('express');
+import express from 'express';
+import { verifyToken } from '../middleware/auth.js';
+import workflowController from '../controllers/workflowController.js';
+
 const router = express.Router();
-const { verifyToken } = require('../middleware/auth');
-const workflowController = require('../controllers/workflowController');
 
 // Protected routes (require authentication)
 router.use(verifyToken);
@@ -20,4 +21,4 @@ router.patch('/:id/toggle', workflowController.toggleWorkflow);
 // Webhook route (public, no auth required)
 router.post('/webhook/:path(*)', workflowController.handleWebhook);
 
-module.exports = router; 
+export default router; 
