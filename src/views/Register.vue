@@ -15,6 +15,10 @@
     <div class="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
       <div class="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
         <form class="space-y-6" @submit.prevent="handleSubmit">
+          <div v-if="error" class="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <span class="block sm:inline">{{ error }}</span>
+          </div>
+
           <div>
             <label for="name" class="block text-sm font-medium text-gray-700">
               Full name
@@ -55,9 +59,11 @@
                 v-model="form.password"
                 type="password"
                 required
+                minlength="6"
                 class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
             </div>
+            <p class="mt-1 text-sm text-gray-500">Must be at least 6 characters long</p>
           </div>
 
           <div>
@@ -105,10 +111,6 @@
             </button>
           </div>
         </form>
-
-        <div v-if="error" class="mt-4 text-sm text-red-600">
-          {{ error }}
-        </div>
 
         <div class="mt-6">
           <div class="relative">
@@ -184,15 +186,34 @@ const handleSubmit = async () => {
     loading.value = true;
     error.value = '';
 
-    // Validate passwords match
+    // Validate form
+    if (!form.name || !form.email || !form.password || !form.confirmPassword) {
+      throw new Error('All fields are required');
+    }
+
+    if (form.password.length < 6) {
+      throw new Error('Password must be at least 6 characters long');
+    }
+
     if (form.password !== form.confirmPassword) {
       throw new Error('Passwords do not match');
     }
 
-    await authStore.register(form.name, form.email, form.password);
+    // Prepare registration data
+    const registrationData = {
+      name: form.name.trim(),
+      email: form.email.trim().toLowerCase(),
+      password: form.password
+    };
+
+    // Call the auth store's register action
+    await authStore.register(registrationData);
+    
+    // Redirect to dashboard on success
     router.push('/dashboard');
   } catch (err) {
-    error.value = err.message || 'Failed to create account. Please try again.';
+    console.error('Registration error:', err);
+    error.value = err.response?.data?.message || err.message || 'Failed to create account. Please try again.';
   } finally {
     loading.value = false;
   }
