@@ -1,10 +1,10 @@
 const express = require('express');
 const router = express.Router();
-const { auth } = require('../middleware/auth');
+const { verifyToken } = require('../middleware/auth');
 const workflowController = require('../controllers/workflowController');
 
 // Protected routes (require authentication)
-router.use(auth);
+router.use(verifyToken);
 
 // CRUD operations
 router.get('/', workflowController.getWorkflows);

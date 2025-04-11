@@ -1,7 +1,7 @@
-import jwt from 'jsonwebtoken';
-import User from '../models/User.js';
+const jwt = require('jsonwebtoken');
+const User = require('../models/User');
 
-export const verifyToken = async (req, res, next) => {
+const verifyToken = async (req, res, next) => {
   try {
     const token = req.header('Authorization')?.replace('Bearer ', '');
 
@@ -24,7 +24,7 @@ export const verifyToken = async (req, res, next) => {
   }
 };
 
-export const checkRole = (roles) => {
+const checkRole = (roles) => {
   return (req, res, next) => {
     if (!roles.includes(req.user.role)) {
       return res.status(403).json({ message: 'Access denied' });
@@ -33,7 +33,7 @@ export const checkRole = (roles) => {
   };
 };
 
-export const checkSubscription = (allowedPlans) => {
+const checkSubscription = (allowedPlans) => {
   return async (req, res, next) => {
     try {
       const user = await User.findById(req.userId).populate('subscription');
@@ -48,4 +48,10 @@ export const checkSubscription = (allowedPlans) => {
       res.status(500).json({ message: 'Server error' });
     }
   };
+};
+
+module.exports = {
+  verifyToken,
+  checkRole,
+  checkSubscription
 }; 
