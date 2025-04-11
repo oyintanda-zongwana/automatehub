@@ -20,9 +20,10 @@
             <div class="mt-1">
               <input
                 id="name"
-                v-model="formData.name"
                 type="text"
                 required
+                :value="name"
+                @input="name = $event.target.value"
                 class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
             </div>
@@ -35,9 +36,10 @@
             <div class="mt-1">
               <input
                 id="email"
-                v-model="formData.email"
                 type="email"
                 required
+                :value="email"
+                @input="email = $event.target.value"
                 class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
             </div>
@@ -50,10 +52,11 @@
             <div class="mt-1">
               <input
                 id="password"
-                v-model="formData.password"
                 type="password"
                 required
                 minlength="6"
+                :value="password"
+                @input="password = $event.target.value"
                 class="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
               />
             </div>
@@ -63,7 +66,7 @@
           <div>
             <button
               type="button"
-              @click="handleSubmit"
+              @click="registerUser"
               :disabled="loading"
               class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 disabled:opacity-50"
             >
@@ -90,119 +93,100 @@
   </div>
 </template>
 
-<script setup>
-import { ref } from 'vue';
-import { useRouter } from 'vue-router';
-import { useAuthStore } from '../stores/auth';
-
-// Force new deployment timestamp: {{ new Date().toISOString() }}
-const router = useRouter();
-const authStore = useAuthStore();
-
-const formData = ref({
-  name: '',
-  email: '',
-  password: ''
-});
-
-const error = ref('');
-const loading = ref(false);
-
-const handleSubmit = async () => {
-  try {
-    console.log('Form submission started');
-    loading.value = true;
-    error.value = '';
-    
-    // Get form values and trim whitespace
-    const name = formData.value.name.trim();
-    const email = formData.value.email.trim().toLowerCase();
-    const password = formData.value.password;
-
-    // Client-side validation
-    if (!name || !email || !password) {
-      error.value = 'All fields are required';
-      loading.value = false;
-      return;
-    }
-
-    if (password.length < 6) {
-      error.value = 'Password must be at least 6 characters long';
-      loading.value = false;
-      return;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      error.value = 'Please enter a valid email address';
-      loading.value = false;
-      return;
-    }
-
-    // Import axios dynamically to ensure it's available
-    const axios = (await import('axios')).default;
-    
-    // Log what we're about to send
-    console.log('Sending registration data:', {
-      name,
-      email,
-      password: '[REDACTED]'
-    });
-
-    // Send registration request with explicitly constructed data
-    const API_URL = 'https://automatehub-pdpd.onrender.com/api';
-    const response = await axios({
-      method: 'post',
-      url: `${API_URL}/auth/register`,
-      headers: { 
-        'Content-Type': 'application/json',
-        'Accept': 'application/json'
-      },
-      data: JSON.stringify({
-        name,
-        email,
-        password
-      })
-    });
-
-    console.log('Registration response:', response.data);
-    
-    // Handle successful registration
-    if (response.data && response.data.token) {
-      localStorage.setItem('token', response.data.token);
-      authStore.token = response.data.token;
-      authStore.isAuthenticated = true;
+<script>
+export default {
+  name: 'Register',
+  
+  data() {
+    return {
+      name: '',
+      email: '',
+      password: '',
+      error: '',
+      loading: false
+    };
+  },
+  
+  methods: {
+    async registerUser() {
+      console.log('Registration attempt started');
+      this.error = '';
+      this.loading = true;
       
       try {
-        await authStore.fetchUser();
-      } catch (e) {
-        console.error('Failed to fetch user after registration:', e);
+        // Basic validation
+        if (!this.name || !this.email || !this.password) {
+          this.error = 'All fields are required';
+          this.loading = false;
+          return;
+        }
+        
+        if (this.password.length < 6) {
+          this.error = 'Password must be at least 6 characters long';
+          this.loading = false;
+          return;
+        }
+        
+        // Prepare data
+        const data = {
+          name: this.name.trim(),
+          email: this.email.trim().toLowerCase(),
+          password: this.password
+        };
+        
+        console.log('Sending data:', {
+          name: data.name,
+          email: data.email,
+          password: '[REDACTED]'
+        });
+        
+        // Direct fetch call with explicit JSON conversion
+        const response = await fetch('https://automatehub-pdpd.onrender.com/api/auth/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(data)
+        });
+        
+        const responseData = await response.json();
+        
+        console.log('Response status:', response.status);
+        console.log('Response data:', responseData);
+        
+        if (!response.ok) {
+          if (responseData.errors) {
+            this.error = responseData.errors.map(e => e.msg).join(', ');
+          } else if (responseData.message) {
+            this.error = responseData.message;
+          } else {
+            this.error = `Error ${response.status}: ${response.statusText}`;
+          }
+          this.loading = false;
+          return;
+        }
+        
+        // Handle successful registration
+        if (responseData.token) {
+          localStorage.setItem('token', responseData.token);
+          
+          // Use the Pinia store properly
+          const { useAuthStore } = require('../stores/auth');
+          const authStore = useAuthStore();
+          authStore.token = responseData.token;
+          authStore.isAuthenticated = true;
+          
+          this.$router.push('/dashboard');
+        } else {
+          throw new Error('No token received from server');
+        }
+      } catch (err) {
+        console.error('Registration error:', err);
+        this.error = err.message || 'Registration failed';
+      } finally {
+        this.loading = false;
       }
-      
-      router.push('/dashboard');
-    } else {
-      throw new Error('No token received from server');
     }
-  } catch (err) {
-    console.error('Registration failed:', err);
-    
-    if (err.response) {
-      console.error('Error response:', err.response.data);
-      
-      if (err.response.data.errors) {
-        error.value = err.response.data.errors.map(e => e.msg).join(', ');
-      } else if (err.response.data.message) {
-        error.value = err.response.data.message;
-      } else {
-        error.value = `Error ${err.response.status}: ${err.response.statusText}`;
-      }
-    } else if (err.request) {
-      error.value = 'No response received from server';
-    } else {
-      error.value = err.message || 'Registration failed';
-    }
-  } finally {
-    loading.value = false;
   }
 };
 </script> 
