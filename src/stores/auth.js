@@ -88,12 +88,40 @@ export const useAuthStore = defineStore('auth', {
 
     async register(userData) {
       try {
-        const response = await api.post('/auth/register', userData);
+        // Validate user data
+        if (!userData.name || !userData.email || !userData.password) {
+          throw new Error('All fields are required');
+        }
+
+        // Format the data
+        const registrationData = {
+          name: userData.name.trim(),
+          email: userData.email.trim().toLowerCase(),
+          password: userData.password
+        };
+
+        // Make the registration request
+        const response = await api.post('/auth/register', registrationData);
+        
+        if (!response.data || !response.data.token) {
+          throw new Error('No token received from server');
+        }
+
         const { token } = response.data;
+        
+        // Set token in localStorage and store
         this.token = token;
         localStorage.setItem('token', token);
+        
+        // Set up axios defaults with the new token
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        
+        // Update authentication state
         this.isAuthenticated = true;
+        
+        // Fetch user data
         await this.fetchUser();
+        
         return true;
       } catch (error) {
         console.error('Registration error:', error);
@@ -163,6 +191,7 @@ export const useAuthStore = defineStore('auth', {
       if (token) {
         this.token = token;
         this.isAuthenticated = true;
+        api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
         this.fetchUser();
       }
     },
