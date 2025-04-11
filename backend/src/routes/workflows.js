@@ -1,153 +1,144 @@
-const express = require('express');
-const router = express.Router();
-const Workflow = require('../models/Workflow');
-const Execution = require('../models/Execution');
-const auth = require('../middleware/auth');
+import express from 'express';
+import { body, validationResult } from 'express-validator';
+import Workflow from '../models/Workflow.js';
+import auth from '../middleware/auth.js';
 
-// Get all workflows for the authenticated user
+const router = express.Router();
+
+// @route   GET api/workflows
+// @desc    Get all workflows for the authenticated user
+// @access  Private
 router.get('/', auth, async (req, res) => {
   try {
-    const workflows = await Workflow.find({ owner: req.user._id })
-      .sort({ createdAt: -1 });
+    const workflows = await Workflow.find({ creator: req.user._id });
     res.json(workflows);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    console.error('Get workflows error:', err);
+    res.status(500).send('Server error');
   }
 });
 
-// Get a single workflow
+// @route   POST api/workflows
+// @desc    Create a new workflow
+// @access  Private
+router.post('/', [
+  auth,
+  body('name', 'Name is required').not().isEmpty(),
+  body('steps', 'Steps array is required').isArray()
+], async (req, res) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  try {
+    const { name, description, steps } = req.body;
+
+    const workflow = new Workflow({
+      name,
+      description,
+      steps,
+      creator: req.user._id
+    });
+
+    await workflow.save();
+    res.json(workflow);
+  } catch (err) {
+    console.error('Create workflow error:', err);
+    res.status(500).send('Server error');
+  }
+});
+
+// @route   GET api/workflows/:id
+// @desc    Get a specific workflow
+// @access  Private
 router.get('/:id', auth, async (req, res) => {
   try {
     const workflow = await Workflow.findOne({
       _id: req.params.id,
-      owner: req.user._id
+      creator: req.user._id
     });
 
     if (!workflow) {
-      return res.status(404).json({ error: 'Workflow not found' });
+      return res.status(404).json({ message: 'Workflow not found' });
     }
 
     res.json(workflow);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+  } catch (err) {
+    console.error('Get workflow error:', err);
+    res.status(500).send('Server error');
   }
 });
 
-// Create a new workflow
-router.post('/', auth, async (req, res) => {
+// @route   PATCH api/workflows/:id
+// @desc    Update a workflow
+// @access  Private
+router.patch('/:id', auth, async (req, res) => {
   try {
-    const workflow = new Workflow({
-      ...req.body,
-      owner: req.user._id
+    const workflow = await Workflow.findOne({
+      _id: req.params.id,
+      creator: req.user._id
+    });
+
+    if (!workflow) {
+      return res.status(404).json({ message: 'Workflow not found' });
+    }
+
+    const updates = req.body;
+    Object.keys(updates).forEach(key => {
+      workflow[key] = updates[key];
     });
 
     await workflow.save();
-    res.status(201).json(workflow);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
-  }
-});
-
-// Update a workflow
-router.patch('/:id', auth, async (req, res) => {
-  try {
-    const workflow = await Workflow.findOneAndUpdate(
-      { _id: req.params.id, owner: req.user._id },
-      req.body,
-      { new: true, runValidators: true }
-    );
-
-    if (!workflow) {
-      return res.status(404).json({ error: 'Workflow not found' });
-    }
-
     res.json(workflow);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
+  } catch (err) {
+    console.error('Update workflow error:', err);
+    res.status(500).send('Server error');
   }
 });
 
-// Delete a workflow
+// @route   DELETE api/workflows/:id
+// @desc    Delete a workflow
+// @access  Private
 router.delete('/:id', auth, async (req, res) => {
   try {
     const workflow = await Workflow.findOneAndDelete({
       _id: req.params.id,
-      owner: req.user._id
+      creator: req.user._id
     });
 
     if (!workflow) {
-      return res.status(404).json({ error: 'Workflow not found' });
+      return res.status(404).json({ message: 'Workflow not found' });
     }
 
-    res.json({ message: 'Workflow deleted successfully' });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.json({ message: 'Workflow deleted' });
+  } catch (err) {
+    console.error('Delete workflow error:', err);
+    res.status(500).send('Server error');
   }
 });
 
-// Execute a workflow
-router.post('/:id/execute', auth, async (req, res) => {
+// @route   PATCH api/workflows/:id/toggle
+// @desc    Toggle workflow status
+// @access  Private
+router.patch('/:id/toggle', auth, async (req, res) => {
   try {
     const workflow = await Workflow.findOne({
       _id: req.params.id,
-      owner: req.user._id
+      creator: req.user._id
     });
 
     if (!workflow) {
-      return res.status(404).json({ error: 'Workflow not found' });
+      return res.status(404).json({ message: 'Workflow not found' });
     }
 
-    // Create execution record
-    const execution = new Execution({
-      workflow: workflow._id,
-      input: req.body,
-      status: 'pending'
-    });
-
-    await execution.save();
-
-    // TODO: Implement actual workflow execution logic
-    // This would typically involve:
-    // 1. Validating the trigger conditions
-    // 2. Executing each action in sequence
-    // 3. Handling errors and retries
-    // 4. Updating the execution record with results
-
-    // For now, we'll just simulate a successful execution
-    execution.status = 'completed';
-    execution.output = { message: 'Workflow executed successfully' };
-    await execution.save();
-
-    // Update workflow last run time
-    workflow.lastRun = new Date();
+    workflow.status = workflow.status === 'active' ? 'inactive' : 'active';
     await workflow.save();
-
-    res.json(execution);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.json(workflow);
+  } catch (err) {
+    console.error('Toggle workflow error:', err);
+    res.status(500).send('Server error');
   }
 });
 
-// Get workflow executions
-router.get('/:id/executions', auth, async (req, res) => {
-  try {
-    const workflow = await Workflow.findOne({
-      _id: req.params.id,
-      owner: req.user._id
-    });
-
-    if (!workflow) {
-      return res.status(404).json({ error: 'Workflow not found' });
-    }
-
-    const executions = await Execution.find({ workflow: workflow._id })
-      .sort({ startedAt: -1 })
-      .limit(10);
-
-    res.json(executions);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-});
-
-module.exports = router; 
+export default router;

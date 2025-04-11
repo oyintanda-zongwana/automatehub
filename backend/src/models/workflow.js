@@ -10,45 +10,20 @@ const workflowSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
-  steps: [{
-    type: {
-      type: String,
-      required: true,
-      enum: ['trigger', 'action', 'condition']
-    },
-    name: {
-      type: String,
-      required: true
-    },
-    config: {
-      type: Map,
-      of: mongoose.Schema.Types.Mixed
-    }
-  }],
   status: {
     type: String,
-    enum: ['active', 'inactive', 'draft'],
-    default: 'draft'
+    enum: ['active', 'inactive'],
+    default: 'inactive'
   },
-  user: {
+  steps: [{
+    name: String,
+    type: String,
+    config: mongoose.Schema.Types.Mixed
+  }],
+  creator: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
-  },
-  lastRun: {
-    type: Date
-  },
-  nextRun: {
-    type: Date
-  },
-  schedule: {
-    type: String,
-    enum: ['manual', 'daily', 'weekly', 'monthly', 'custom'],
-    default: 'manual'
-  },
-  scheduleConfig: {
-    type: Map,
-    of: mongoose.Schema.Types.Mixed
   },
   successCount: {
     type: Number,
@@ -58,19 +33,11 @@ const workflowSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
-  errorLog: [{
-    timestamp: Date,
-    message: String,
-    details: mongoose.Schema.Types.Mixed
-  }]
+  lastExecuted: {
+    type: Date
+  }
 }, {
   timestamps: true
 });
 
-// Index for faster queries
-workflowSchema.index({ user: 1, status: 1 });
-workflowSchema.index({ nextRun: 1 });
-
-const Workflow = mongoose.model('Workflow', workflowSchema);
-
-export default Workflow; 
+export default mongoose.model('Workflow', workflowSchema);
