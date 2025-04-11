@@ -5,6 +5,7 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
 import subscriptionRoutes from './routes/subscription.js';
+import workflowRoutes from './routes/workflows.js';
 import scheduleTaskReset from './cron/resetTaskUsage.js';
 
 dotenv.config();
@@ -47,7 +48,7 @@ app.use((req, res, next) => {
 // CORS handling
 app.use(cors({
   origin: '*', // Allow all origins for testing
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Accept'],
   credentials: true
 }));
@@ -58,7 +59,7 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Debug middleware to log parsed body
 app.use((req, res, next) => {
-  if (req.method === 'POST' || req.method === 'PUT') {
+  if (req.method === 'POST' || req.method === 'PUT' || req.method === 'PATCH') {
     console.log('Parsed body:', {
       keys: Object.keys(req.body || {}),
       values: req.body ? {
@@ -113,6 +114,7 @@ app.get('/api/health', (req, res) => {
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/subscription', subscriptionRoutes);
+app.use('/api/workflows', workflowRoutes);
 
 // Root API endpoint
 app.get('/api', (req, res) => {
@@ -124,6 +126,7 @@ app.get('/api', (req, res) => {
       '/api/auth/login',
       '/api/auth/me',
       '/api/subscription/plans',
+      '/api/workflows',
       '/api/health'
     ]
   });
