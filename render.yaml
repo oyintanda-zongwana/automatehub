@@ -4,7 +4,7 @@ services:
     runtime: node
     region: frankfurt
     rootDir: backend
-    buildCommand: npm install
+    buildCommand: npm install && ls -la src/models/
     startCommand: node src/index.js
     envVars:
       - key: NODE_ENV
