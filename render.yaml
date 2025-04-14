@@ -3,9 +3,9 @@ services:
     name: automatehub-backend
     runtime: node
     region: frankfurt
-    rootDir: .
-    buildCommand: cd backend && npm install
-    startCommand: cd backend && npm start
+    rootDir: backend
+    buildCommand: npm install
+    startCommand: node src/index.js
     envVars:
       - key: NODE_ENV
         value: production
