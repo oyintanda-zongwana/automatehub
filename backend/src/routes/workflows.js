@@ -1,6 +1,6 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
-import Workflow from '../models/Workflow.js';
+import Workflow from '../models/workflow.js';
 import auth from '../middleware/auth.js';
 
 const router = express.Router();
