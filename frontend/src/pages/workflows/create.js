@@ -32,6 +32,7 @@ import {
   Delete as DeleteIcon,
   Edit as EditIcon
 } from '@mui/icons-material';
+import { alpha } from '@mui/material/styles';
 
 const automations = [
   {
@@ -208,6 +209,18 @@ const triggerTypes = {
         label: 'Cron Schedule',
         type: 'text',
         helperText: 'Enter a cron expression (e.g., 0 9 * * * for 9 AM daily)'
+      },
+      {
+        name: 'timezone',
+        label: 'Timezone',
+        type: 'select',
+        options: [
+          { value: 'UTC', label: 'UTC' },
+          { value: 'EST', label: 'Eastern Time' },
+          { value: 'PST', label: 'Pacific Time' },
+          { value: 'GMT', label: 'Greenwich Mean Time' }
+        ],
+        defaultValue: 'UTC'
       }
     ]
   },
@@ -221,7 +234,9 @@ const triggerTypes = {
         type: 'select',
         options: [
           { value: 'POST', label: 'POST' },
-          { value: 'GET', label: 'GET' }
+          { value: 'GET', label: 'GET' },
+          { value: 'PUT', label: 'PUT' },
+          { value: 'DELETE', label: 'DELETE' }
         ]
       },
       {
@@ -229,6 +244,24 @@ const triggerTypes = {
         label: 'Webhook Path',
         type: 'text',
         helperText: 'The path will be generated automatically'
+      },
+      {
+        name: 'authentication',
+        label: 'Authentication',
+        type: 'select',
+        options: [
+          { value: 'none', label: 'None' },
+          { value: 'basic', label: 'Basic Auth' },
+          { value: 'bearer', label: 'Bearer Token' },
+          { value: 'api_key', label: 'API Key' }
+        ]
+      },
+      {
+        name: 'rateLimit',
+        label: 'Rate Limit',
+        type: 'number',
+        helperText: 'Maximum requests per minute (0 for unlimited)',
+        defaultValue: 0
       }
     ]
   },
@@ -243,8 +276,27 @@ const triggerTypes = {
         options: [
           { value: 'file_upload', label: 'File Upload' },
           { value: 'user_action', label: 'User Action' },
-          { value: 'system_event', label: 'System Event' }
+          { value: 'system_event', label: 'System Event' },
+          { value: 'database_change', label: 'Database Change' },
+          { value: 'api_call', label: 'API Call' }
         ]
+      },
+      {
+        name: 'eventSource',
+        label: 'Event Source',
+        type: 'select',
+        options: [
+          { value: 'local', label: 'Local System' },
+          { value: 'cloud', label: 'Cloud Storage' },
+          { value: 'database', label: 'Database' },
+          { value: 'api', label: 'External API' }
+        ]
+      },
+      {
+        name: 'filter',
+        label: 'Event Filter',
+        type: 'text',
+        helperText: 'JSON filter to match specific events'
       }
     ]
   },
@@ -259,7 +311,9 @@ const triggerTypes = {
         options: [
           { value: 'time', label: 'Time-based' },
           { value: 'data', label: 'Data-based' },
-          { value: 'system', label: 'System-based' }
+          { value: 'system', label: 'System-based' },
+          { value: 'resource', label: 'Resource Usage' },
+          { value: 'custom', label: 'Custom Condition' }
         ]
       },
       {
@@ -267,8 +321,156 @@ const triggerTypes = {
         label: 'Condition Value',
         type: 'text',
         helperText: 'Enter the condition value'
+      },
+      {
+        name: 'operator',
+        label: 'Operator',
+        type: 'select',
+        options: [
+          { value: 'equals', label: 'Equals' },
+          { value: 'not_equals', label: 'Not Equals' },
+          { value: 'greater_than', label: 'Greater Than' },
+          { value: 'less_than', label: 'Less Than' },
+          { value: 'contains', label: 'Contains' },
+          { value: 'matches', label: 'Matches Pattern' }
+        ]
       }
     ]
+  },
+  interval: {
+    label: 'Interval',
+    description: 'Run the workflow at regular intervals',
+    configFields: [
+      {
+        name: 'interval',
+        label: 'Interval',
+        type: 'select',
+        options: [
+          { value: '1m', label: 'Every Minute' },
+          { value: '5m', label: 'Every 5 Minutes' },
+          { value: '15m', label: 'Every 15 Minutes' },
+          { value: '30m', label: 'Every 30 Minutes' },
+          { value: '1h', label: 'Every Hour' },
+          { value: '1d', label: 'Every Day' }
+        ]
+      },
+      {
+        name: 'startTime',
+        label: 'Start Time',
+        type: 'text',
+        helperText: 'When to start the interval (e.g., 09:00)'
+      },
+      {
+        name: 'endTime',
+        label: 'End Time',
+        type: 'text',
+        helperText: 'When to end the interval (e.g., 17:00)'
+      }
+    ]
+  },
+  queue: {
+    label: 'Queue',
+    description: 'Trigger the workflow based on queue events',
+    configFields: [
+      {
+        name: 'queueType',
+        label: 'Queue Type',
+        type: 'select',
+        options: [
+          { value: 'rabbitmq', label: 'RabbitMQ' },
+          { value: 'kafka', label: 'Kafka' },
+          { value: 'sqs', label: 'AWS SQS' },
+          { value: 'redis', label: 'Redis' }
+        ]
+      },
+      {
+        name: 'queueName',
+        label: 'Queue Name',
+        type: 'text',
+        helperText: 'Name of the queue to monitor'
+      },
+      {
+        name: 'batchSize',
+        label: 'Batch Size',
+        type: 'number',
+        helperText: 'Number of messages to process at once',
+        defaultValue: 1
+      }
+    ]
+  }
+};
+
+// Add custom styles
+const styles = {
+  container: {
+    mt: 4,
+    mb: 4,
+    maxWidth: '1200px'
+  },
+  paper: {
+    p: 4,
+    borderRadius: 2,
+    boxShadow: '0 4px 20px rgba(0, 0, 0, 0.08)'
+  },
+  header: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    mb: 4,
+    pb: 2,
+    borderBottom: '1px solid',
+    borderColor: 'divider'
+  },
+  section: {
+    mb: 4,
+    p: 3,
+    borderRadius: 1,
+    backgroundColor: (theme) => alpha(theme.palette.background.paper, 0.6)
+  },
+  stepCard: {
+    mt: 2,
+    p: 2,
+    borderRadius: 1,
+    border: '1px solid',
+    borderColor: 'divider',
+    transition: 'all 0.2s ease-in-out',
+    '&:hover': {
+      boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)',
+      borderColor: 'primary.main'
+    }
+  },
+  stepHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    mb: 1
+  },
+  stepActions: {
+    display: 'flex',
+    gap: 1
+  },
+  previewDialog: {
+    '& .MuiDialog-paper': {
+      borderRadius: 2,
+      boxShadow: '0 8px 32px rgba(0, 0, 0, 0.12)'
+    }
+  },
+  previewTab: {
+    minHeight: '400px',
+    p: 3
+  },
+  metricCard: {
+    p: 2,
+    borderRadius: 1,
+    backgroundColor: (theme) => alpha(theme.palette.background.paper, 0.8),
+    border: '1px solid',
+    borderColor: 'divider',
+    mb: 2
+  },
+  metricValue: {
+    fontSize: '1.5rem',
+    fontWeight: 'bold',
+    color: 'primary.main'
   }
 };
 
@@ -472,11 +674,172 @@ const CreateWorkflow = () => {
     );
   };
 
+  const renderPreviewContent = () => {
+    if (!previewData) return null;
+
+    return (
+      <Box>
+        <Tabs 
+          value={activeTab} 
+          onChange={(e, newValue) => setActiveTab(newValue)}
+          sx={{ borderBottom: 1, borderColor: 'divider', mb: 3 }}
+        >
+          <Tab label="Overview" />
+          <Tab label="Success Rate" />
+          <Tab label="Execution Time" />
+          <Tab label="Resource Usage" />
+          <Tab label="Dependencies" />
+        </Tabs>
+        <Box>
+          {activeTab === 0 && (
+            <Box>
+              <Typography variant="h6" gutterBottom fontWeight="medium">
+                Workflow Overview
+              </Typography>
+              <Box sx={styles.metricCard}>
+                <Typography variant="body2" color="text.secondary">Name</Typography>
+                <Typography sx={styles.metricValue}>{previewData.name}</Typography>
+              </Box>
+              <Box sx={styles.metricCard}>
+                <Typography variant="body2" color="text.secondary">Trigger</Typography>
+                <Typography sx={styles.metricValue}>{previewData.trigger.type}</Typography>
+              </Box>
+              <Box sx={styles.metricCard}>
+                <Typography variant="body2" color="text.secondary">Steps</Typography>
+                <Typography sx={styles.metricValue}>{previewData.steps.length}</Typography>
+              </Box>
+            </Box>
+          )}
+          {activeTab === 1 && (
+            <Box>
+              <Typography variant="h6" gutterBottom>Success Rate Analysis</Typography>
+              <Typography>Overall Success Rate: {previewData.successRate}%</Typography>
+              <Typography>Historical Success Rate: {previewData.historicalSuccessRate}%</Typography>
+              <Typography>Step-by-step Success Rate:</Typography>
+              {previewData.stepSuccessRates.map((rate, index) => (
+                <Box key={index} sx={{ ml: 2, mb: 1 }}>
+                  <Typography>
+                    Step {index + 1}: {rate}%
+                    {rate < 90 && (
+                      <Chip
+                        size="small"
+                        color="warning"
+                        label="Low Success Rate"
+                        sx={{ ml: 1 }}
+                      />
+                    )}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Common failures: {previewData.stepFailures[index]?.join(', ') || 'None'}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          )}
+          {activeTab === 2 && (
+            <Box>
+              <Typography variant="h6" gutterBottom>Execution Time Analysis</Typography>
+              <Typography>Estimated Total Time: {previewData.estimatedTime}ms</Typography>
+              <Typography>Average Historical Time: {previewData.averageTime}ms</Typography>
+              <Typography>Step-by-step Time:</Typography>
+              {previewData.stepTimes.map((time, index) => (
+                <Box key={index} sx={{ ml: 2, mb: 1 }}>
+                  <Typography>
+                    Step {index + 1}: {time}ms
+                    {time > 1000 && (
+                      <Chip
+                        size="small"
+                        color="warning"
+                        label="Slow Step"
+                        sx={{ ml: 1 }}
+                      />
+                    )}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Min: {previewData.stepTimeRanges[index]?.min}ms, 
+                    Max: {previewData.stepTimeRanges[index]?.max}ms
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          )}
+          {activeTab === 3 && (
+            <Box>
+              <Typography variant="h6" gutterBottom>Resource Usage</Typography>
+              <Typography>CPU Usage: {previewData.cpuUsage}%</Typography>
+              <Typography>Memory Usage: {previewData.memoryUsage}MB</Typography>
+              <Typography>Network Usage: {previewData.networkUsage}KB/s</Typography>
+              <Typography>Step-by-step Resource Usage:</Typography>
+              {previewData.stepResources.map((resource, index) => (
+                <Box key={index} sx={{ ml: 2, mb: 1 }}>
+                  <Typography>
+                    Step {index + 1}:
+                    {resource.cpu > 50 && (
+                      <Chip
+                        size="small"
+                        color="warning"
+                        label="High CPU"
+                        sx={{ ml: 1 }}
+                      />
+                    )}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    CPU: {resource.cpu}%, Memory: {resource.memory}MB
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          )}
+          {activeTab === 4 && (
+            <Box>
+              <Typography variant="h6" gutterBottom>Dependencies</Typography>
+              <Typography>External Services:</Typography>
+              {previewData.externalServices.map((service, index) => (
+                <Box key={index} sx={{ ml: 2, mb: 1 }}>
+                  <Typography>
+                    {service.name}
+                    {!service.available && (
+                      <Chip
+                        size="small"
+                        color="error"
+                        label="Unavailable"
+                        sx={{ ml: 1 }}
+                      />
+                    )}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Status: {service.status}, Latency: {service.latency}ms
+                  </Typography>
+                </Box>
+              ))}
+              <Typography sx={{ mt: 2 }}>Required Permissions:</Typography>
+              {previewData.requiredPermissions.map((permission, index) => (
+                <Box key={index} sx={{ ml: 2, mb: 1 }}>
+                  <Typography>
+                    {permission.name}
+                    {!permission.granted && (
+                      <Chip
+                        size="small"
+                        color="error"
+                        label="Missing"
+                        sx={{ ml: 1 }}
+                      />
+                    )}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          )}
+        </Box>
+      </Box>
+    );
+  };
+
   return (
-    <Container maxWidth="md" sx={{ mt: 4, mb: 4 }}>
-      <Paper sx={{ p: 3 }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
-          <Typography variant="h5">
+    <Container sx={styles.container}>
+      <Paper sx={styles.paper}>
+        <Box sx={styles.header}>
+          <Typography variant="h4" fontWeight="medium">
             Create New Workflow
           </Typography>
           <Button
@@ -484,13 +847,17 @@ const CreateWorkflow = () => {
             startIcon={<PreviewIcon />}
             onClick={handlePreview}
             disabled={loading}
+            sx={{ borderRadius: 2 }}
           >
             Preview
           </Button>
         </Box>
 
         <form onSubmit={handleSubmit}>
-          <Box sx={{ mb: 3 }}>
+          <Box sx={styles.section}>
+            <Typography variant="h6" gutterBottom fontWeight="medium">
+              Basic Information
+            </Typography>
             <TextField
               fullWidth
               label="Workflow Name"
@@ -499,6 +866,7 @@ const CreateWorkflow = () => {
               onChange={handleChange}
               required
               margin="normal"
+              sx={{ mb: 2 }}
             />
 
             <TextField
@@ -511,7 +879,12 @@ const CreateWorkflow = () => {
               rows={3}
               margin="normal"
             />
+          </Box>
 
+          <Box sx={styles.section}>
+            <Typography variant="h6" gutterBottom fontWeight="medium">
+              Trigger Configuration
+            </Typography>
             <FormControl fullWidth margin="normal">
               <InputLabel>Trigger Type</InputLabel>
               <Select
@@ -531,11 +904,11 @@ const CreateWorkflow = () => {
             {renderTriggerConfig()}
           </Box>
 
-          <Typography variant="h6" gutterBottom>
-            Automation Steps
-          </Typography>
+          <Box sx={styles.section}>
+            <Typography variant="h6" gutterBottom fontWeight="medium">
+              Automation Steps
+            </Typography>
 
-          <Box sx={{ mb: 3 }}>
             <FormControl fullWidth margin="normal">
               <InputLabel>Add Automation</InputLabel>
               <Select
@@ -554,16 +927,17 @@ const CreateWorkflow = () => {
             {formData.steps.map((step, index) => {
               const automation = automations.find(a => a.id === step.type);
               return (
-                <Box key={index} sx={{ mt: 2, p: 2, border: '1px solid #ddd', borderRadius: 1 }}>
-                  <Box display="flex" justifyContent="space-between" alignItems="center">
-                    <Typography>
+                <Box key={index} sx={styles.stepCard}>
+                  <Box sx={styles.stepHeader}>
+                    <Typography variant="subtitle1" fontWeight="medium">
                       {index + 1}. {automation?.title}
                     </Typography>
-                    <Box>
+                    <Box sx={styles.stepActions}>
                       <Tooltip title="Configure">
                         <IconButton
                           size="small"
                           onClick={() => openConfigDialog(step, index)}
+                          sx={{ color: 'primary.main' }}
                         >
                           <SettingsIcon />
                         </IconButton>
@@ -597,6 +971,7 @@ const CreateWorkflow = () => {
             <Button
               variant="outlined"
               onClick={() => navigate('/workflows')}
+              sx={{ borderRadius: 2 }}
             >
               Cancel
             </Button>
@@ -605,6 +980,7 @@ const CreateWorkflow = () => {
               variant="contained"
               color="primary"
               disabled={loading}
+              sx={{ borderRadius: 2 }}
             >
               {loading ? <CircularProgress size={24} /> : 'Create Workflow'}
             </Button>
@@ -618,14 +994,23 @@ const CreateWorkflow = () => {
         onClose={() => setConfigDialogOpen(false)}
         maxWidth="sm"
         fullWidth
+        sx={styles.previewDialog}
       >
-        <DialogTitle>Configure Step</DialogTitle>
+        <DialogTitle>
+          <Typography variant="h6" fontWeight="medium">
+            Configure Step
+          </Typography>
+        </DialogTitle>
         <DialogContent>
           {renderStepConfig()}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setConfigDialogOpen(false)}>Cancel</Button>
-          <Button onClick={saveConfig} variant="contained">Save</Button>
+          <Button onClick={() => setConfigDialogOpen(false)} sx={{ borderRadius: 2 }}>
+            Cancel
+          </Button>
+          <Button onClick={saveConfig} variant="contained" sx={{ borderRadius: 2 }}>
+            Save
+          </Button>
         </DialogActions>
       </Dialog>
 
@@ -635,55 +1020,22 @@ const CreateWorkflow = () => {
         onClose={() => setPreviewOpen(false)}
         maxWidth="md"
         fullWidth
+        sx={styles.previewDialog}
       >
-        <DialogTitle>Workflow Preview</DialogTitle>
+        <DialogTitle>
+          <Typography variant="h6" fontWeight="medium">
+            Workflow Preview
+          </Typography>
+        </DialogTitle>
         <DialogContent>
-          {previewData && (
-            <Box>
-              <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue)}>
-                <Tab label="Overview" />
-                <Tab label="Success Rate" />
-                <Tab label="Execution Time" />
-              </Tabs>
-              <Box sx={{ mt: 2 }}>
-                {activeTab === 0 && (
-                  <Box>
-                    <Typography variant="h6" gutterBottom>Workflow Overview</Typography>
-                    <Typography>Name: {previewData.name}</Typography>
-                    <Typography>Trigger: {previewData.trigger.type}</Typography>
-                    <Typography>Steps: {previewData.steps.length}</Typography>
-                  </Box>
-                )}
-                {activeTab === 1 && (
-                  <Box>
-                    <Typography variant="h6" gutterBottom>Success Rate Analysis</Typography>
-                    <Typography>Overall Success Rate: {previewData.successRate}%</Typography>
-                    <Typography>Step-by-step Success Rate:</Typography>
-                    {previewData.stepSuccessRates.map((rate, index) => (
-                      <Typography key={index}>
-                        Step {index + 1}: {rate}%
-                      </Typography>
-                    ))}
-                  </Box>
-                )}
-                {activeTab === 2 && (
-                  <Box>
-                    <Typography variant="h6" gutterBottom>Execution Time Analysis</Typography>
-                    <Typography>Estimated Total Time: {previewData.estimatedTime}ms</Typography>
-                    <Typography>Step-by-step Time:</Typography>
-                    {previewData.stepTimes.map((time, index) => (
-                      <Typography key={index}>
-                        Step {index + 1}: {time}ms
-                      </Typography>
-                    ))}
-                  </Box>
-                )}
-              </Box>
-            </Box>
-          )}
+          <Box sx={styles.previewTab}>
+            {renderPreviewContent()}
+          </Box>
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setPreviewOpen(false)}>Close</Button>
+          <Button onClick={() => setPreviewOpen(false)} sx={{ borderRadius: 2 }}>
+            Close
+          </Button>
         </DialogActions>
       </Dialog>
     </Container>
