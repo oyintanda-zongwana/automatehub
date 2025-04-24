@@ -1,14 +1,27 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
+import Home from '../views/Home.vue';
+import CreateWorkflow from '../views/workflow/CreateWorkflow.vue';
 
 // Lazy-loaded components
-const Home = () => import('../views/Home.vue');
 const Login = () => import('../views/Login.vue');
 const Register = () => import('../views/Register.vue');
 const ForgotPassword = () => import('../views/ForgotPassword.vue');
 const ResetPassword = () => import('../views/ResetPassword.vue');
 const Dashboard = () => import('../views/Dashboard.vue');
-const CreateWorkflow = () => import('../views/CreateWorkflow.vue');
+const Product = () => import('../views/Product.vue');
+const Features = () => import('../views/Features.vue');
+const Pricing = () => import('../views/Pricing.vue');
+const Security = () => import('../views/Security.vue');
+const About = () => import('../views/About.vue');
+const Blog = () => import('../views/Blog.vue');
+const Careers = () => import('../views/Careers.vue');
+const Documentation = () => import('../views/Documentation.vue');
+const APIReference = () => import('../views/APIReference.vue');
+const Community = () => import('../views/Community.vue');
+const Privacy = () => import('../views/Privacy.vue');
+const Terms = () => import('../views/Terms.vue');
+const Contact = () => import('../views/Contact.vue');
 
 const routes = [
   {
@@ -55,72 +68,72 @@ const routes = [
   {
     path: '/product',
     name: 'product',
-    component: () => import('../views/Product.vue')
+    component: Product
   },
   {
     path: '/features',
     name: 'features',
-    component: () => import('../views/Features.vue')
+    component: Features
   },
   {
     path: '/pricing',
     name: 'pricing',
-    component: () => import('../views/Pricing.vue')
+    component: Pricing
   },
   {
     path: '/security',
     name: 'security',
-    component: () => import('../views/Security.vue')
+    component: Security
   },
   {
     path: '/about',
     name: 'about',
-    component: () => import('../views/About.vue')
+    component: About
   },
   {
     path: '/blog',
     name: 'blog',
-    component: () => import('../views/Blog.vue')
+    component: Blog
   },
   {
     path: '/careers',
     name: 'careers',
-    component: () => import('../views/Careers.vue')
+    component: Careers
   },
   {
     path: '/documentation',
     name: 'documentation',
-    component: () => import('../views/Documentation.vue')
+    component: Documentation
   },
   {
     path: '/api-reference',
     name: 'api-reference',
-    component: () => import('../views/APIReference.vue')
+    component: APIReference
   },
   {
     path: '/community',
     name: 'community',
-    component: () => import('../views/Community.vue')
+    component: Community
   },
   {
     path: '/privacy',
     name: 'privacy',
-    component: () => import('../views/Privacy.vue')
+    component: Privacy
   },
   {
     path: '/terms',
     name: 'terms',
-    component: () => import('../views/Terms.vue')
+    component: Terms
   },
   {
     path: '/contact',
     name: 'contact',
-    component: () => import('../views/Contact.vue')
+    component: Contact
   }
 ];
 
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHistory(process.env.BASE_URL),
   routes
 });
 

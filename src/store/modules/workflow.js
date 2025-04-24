@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { workflowApi } from '../api';
+import { workflowApi } from '../../api';
 
 export const useWorkflowStore = defineStore('workflow', {
   state: () => ({
