@@ -187,7 +187,7 @@
 
 <script setup>
 import { useAuthStore } from '../stores/auth';
-import { useWorkflowStore } from '../store/modules/workflow';
+import { useWorkflowStore } from '../stores/workflow';
 import { storeToRefs } from 'pinia';
 import { onMounted } from 'vue';
 

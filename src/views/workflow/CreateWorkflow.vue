@@ -170,7 +170,7 @@
 <script>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
-import { useWorkflowStore } from '../../store/modules/workflow';
+import { useWorkflowStore } from '../../stores/workflow';
 import WorkflowActions from '@/components/workflow/WorkflowActions.vue';
 
 export default {
