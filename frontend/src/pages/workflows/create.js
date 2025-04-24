@@ -196,6 +196,197 @@ const automations = [
         ]
       }
     ]
+  },
+  {
+    id: 'ai-content-generator',
+    title: 'AI Content Generator',
+    description: 'Generate content using AI models',
+    configFields: [
+      {
+        name: 'contentType',
+        label: 'Content Type',
+        type: 'select',
+        options: [
+          { value: 'blog', label: 'Blog Post' },
+          { value: 'social', label: 'Social Media' },
+          { value: 'email', label: 'Email' },
+          { value: 'product', label: 'Product Description' }
+        ]
+      },
+      {
+        name: 'tone',
+        label: 'Tone',
+        type: 'select',
+        options: [
+          { value: 'professional', label: 'Professional' },
+          { value: 'casual', label: 'Casual' },
+          { value: 'friendly', label: 'Friendly' },
+          { value: 'formal', label: 'Formal' }
+        ]
+      },
+      {
+        name: 'length',
+        label: 'Content Length',
+        type: 'select',
+        options: [
+          { value: 'short', label: 'Short' },
+          { value: 'medium', label: 'Medium' },
+          { value: 'long', label: 'Long' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'ai-image-generator',
+    title: 'AI Image Generator',
+    description: 'Generate images using AI models',
+    configFields: [
+      {
+        name: 'style',
+        label: 'Image Style',
+        type: 'select',
+        options: [
+          { value: 'realistic', label: 'Realistic' },
+          { value: 'artistic', label: 'Artistic' },
+          { value: 'cartoon', label: 'Cartoon' },
+          { value: 'sketch', label: 'Sketch' }
+        ]
+      },
+      {
+        name: 'size',
+        label: 'Image Size',
+        type: 'select',
+        options: [
+          { value: '256x256', label: '256x256' },
+          { value: '512x512', label: '512x512' },
+          { value: '1024x1024', label: '1024x1024' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'ai-code-assistant',
+    title: 'AI Code Assistant',
+    description: 'Generate and optimize code using AI',
+    configFields: [
+      {
+        name: 'language',
+        label: 'Programming Language',
+        type: 'select',
+        options: [
+          { value: 'javascript', label: 'JavaScript' },
+          { value: 'python', label: 'Python' },
+          { value: 'java', label: 'Java' },
+          { value: 'csharp', label: 'C#' }
+        ]
+      },
+      {
+        name: 'task',
+        label: 'Task Type',
+        type: 'select',
+        options: [
+          { value: 'generate', label: 'Generate Code' },
+          { value: 'optimize', label: 'Optimize Code' },
+          { value: 'debug', label: 'Debug Code' },
+          { value: 'document', label: 'Document Code' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'ai-data-analyzer',
+    title: 'AI Data Analyzer',
+    description: 'Analyze data using AI models',
+    configFields: [
+      {
+        name: 'analysisType',
+        label: 'Analysis Type',
+        type: 'select',
+        options: [
+          { value: 'sentiment', label: 'Sentiment Analysis' },
+          { value: 'trend', label: 'Trend Analysis' },
+          { value: 'prediction', label: 'Prediction' },
+          { value: 'classification', label: 'Classification' }
+        ]
+      },
+      {
+        name: 'outputFormat',
+        label: 'Output Format',
+        type: 'select',
+        options: [
+          { value: 'report', label: 'Report' },
+          { value: 'visualization', label: 'Visualization' },
+          { value: 'summary', label: 'Summary' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'ai-chatbot',
+    title: 'AI Chatbot',
+    description: 'Create and manage AI-powered chatbots',
+    configFields: [
+      {
+        name: 'personality',
+        label: 'Bot Personality',
+        type: 'select',
+        options: [
+          { value: 'professional', label: 'Professional' },
+          { value: 'friendly', label: 'Friendly' },
+          { value: 'humorous', label: 'Humorous' }
+        ]
+      },
+      {
+        name: 'capabilities',
+        label: 'Capabilities',
+        type: 'multiselect',
+        options: [
+          { value: 'qa', label: 'Q&A' },
+          { value: 'support', label: 'Customer Support' },
+          { value: 'booking', label: 'Booking' },
+          { value: 'sales', label: 'Sales' }
+        ]
+      }
+    ]
+  },
+  {
+    id: 'ai-translator',
+    title: 'AI Translator',
+    description: 'Translate content between languages',
+    configFields: [
+      {
+        name: 'sourceLanguage',
+        label: 'Source Language',
+        type: 'select',
+        options: [
+          { value: 'en', label: 'English' },
+          { value: 'es', label: 'Spanish' },
+          { value: 'fr', label: 'French' },
+          { value: 'de', label: 'German' }
+        ]
+      },
+      {
+        name: 'targetLanguage',
+        label: 'Target Language',
+        type: 'select',
+        options: [
+          { value: 'en', label: 'English' },
+          { value: 'es', label: 'Spanish' },
+          { value: 'fr', label: 'French' },
+          { value: 'de', label: 'German' }
+        ]
+      },
+      {
+        name: 'style',
+        label: 'Translation Style',
+        type: 'select',
+        options: [
+          { value: 'formal', label: 'Formal' },
+          { value: 'casual', label: 'Casual' },
+          { value: 'technical', label: 'Technical' }
+        ]
+      }
+    ]
   }
 ];
 
@@ -395,6 +586,112 @@ const triggerTypes = {
         type: 'number',
         helperText: 'Number of messages to process at once',
         defaultValue: 1
+      }
+    ]
+  },
+  ai: {
+    label: 'AI Task',
+    description: 'Trigger the workflow based on AI model outputs',
+    configFields: [
+      {
+        name: 'model',
+        label: 'AI Model',
+        type: 'select',
+        options: [
+          { value: 'gpt-4', label: 'GPT-4' },
+          { value: 'gpt-3.5', label: 'GPT-3.5' },
+          { value: 'claude', label: 'Claude' },
+          { value: 'dall-e', label: 'DALL-E' },
+          { value: 'whisper', label: 'Whisper' }
+        ]
+      },
+      {
+        name: 'taskType',
+        label: 'Task Type',
+        type: 'select',
+        options: [
+          { value: 'completion', label: 'Text Completion' },
+          { value: 'classification', label: 'Classification' },
+          { value: 'generation', label: 'Content Generation' },
+          { value: 'analysis', label: 'Data Analysis' },
+          { value: 'translation', label: 'Translation' }
+        ]
+      },
+      {
+        name: 'threshold',
+        label: 'Confidence Threshold',
+        type: 'number',
+        helperText: 'Minimum confidence score to trigger (0-1)',
+        defaultValue: 0.8
+      }
+    ]
+  },
+  data: {
+    label: 'Data Analysis',
+    description: 'Trigger based on data analysis results',
+    configFields: [
+      {
+        name: 'dataSource',
+        label: 'Data Source',
+        type: 'select',
+        options: [
+          { value: 'database', label: 'Database' },
+          { value: 'api', label: 'API' },
+          { value: 'file', label: 'File' },
+          { value: 'stream', label: 'Data Stream' }
+        ]
+      },
+      {
+        name: 'analysisType',
+        label: 'Analysis Type',
+        type: 'select',
+        options: [
+          { value: 'trend', label: 'Trend Analysis' },
+          { value: 'anomaly', label: 'Anomaly Detection' },
+          { value: 'pattern', label: 'Pattern Recognition' },
+          { value: 'prediction', label: 'Prediction' }
+        ]
+      },
+      {
+        name: 'interval',
+        label: 'Analysis Interval',
+        type: 'select',
+        options: [
+          { value: 'realtime', label: 'Real-time' },
+          { value: 'hourly', label: 'Hourly' },
+          { value: 'daily', label: 'Daily' },
+          { value: 'weekly', label: 'Weekly' }
+        ]
+      }
+    ]
+  },
+  integration: {
+    label: 'Integration',
+    description: 'Trigger based on external service events',
+    configFields: [
+      {
+        name: 'service',
+        label: 'Service',
+        type: 'select',
+        options: [
+          { value: 'slack', label: 'Slack' },
+          { value: 'github', label: 'GitHub' },
+          { value: 'jira', label: 'Jira' },
+          { value: 'salesforce', label: 'Salesforce' },
+          { value: 'hubspot', label: 'HubSpot' }
+        ]
+      },
+      {
+        name: 'eventType',
+        label: 'Event Type',
+        type: 'select',
+        options: [
+          { value: 'message', label: 'New Message' },
+          { value: 'commit', label: 'Code Commit' },
+          { value: 'issue', label: 'Issue Update' },
+          { value: 'lead', label: 'New Lead' },
+          { value: 'contact', label: 'Contact Update' }
+        ]
       }
     ]
   }
