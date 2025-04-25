@@ -54,9 +54,9 @@
                   v-model="action.type"
                   class="block w-full pl-4 pr-10 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
                 >
-                  <option value="http">HTTP Request</option>
-                  <option value="email">Send Email</option>
-                  <option value="ai">AI Task</option>
+                  <option v-for="actionType in allowedActions" :key="actionType.value" :value="actionType.value">
+                    {{ actionType.label }}
+                  </option>
                 </select>
                 <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                   <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
@@ -66,159 +66,122 @@
               </div>
             </div>
 
-            <!-- HTTP Configuration -->
-            <Transition name="fade">
-              <template v-if="action.type === 'http'">
-                <div class="col-span-full md:col-span-1">
-                  <label :for="'method-' + index" class="block text-sm font-medium text-gray-700">Method</label>
-                  <div class="mt-1 relative">
+            <!-- Action Configuration -->
+            <div class="col-span-full">
+              <Transition name="fade" mode="out-in">
+                <!-- HTTP Action -->
+                <div v-if="action.type === 'http'" class="space-y-4">
+                  <div>
+                    <label :for="'httpMethod-' + index" class="block text-sm font-medium text-gray-700">Method</label>
                     <select
-                      :id="'method-' + index"
+                      :id="'httpMethod-' + index"
                       v-model="action.config.method"
-                      class="block w-full pl-4 pr-10 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
+                      class="mt-1 block w-full pl-4 pr-10 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
                     >
                       <option value="GET">GET</option>
                       <option value="POST">POST</option>
                       <option value="PUT">PUT</option>
                       <option value="DELETE">DELETE</option>
+                      <option value="PATCH">PATCH</option>
                     </select>
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                      <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                      </svg>
-                    </div>
                   </div>
-                </div>
-
-                <div class="col-span-full">
-                  <label :for="'url-' + index" class="block text-sm font-medium text-gray-700">URL</label>
-                  <div class="mt-1">
+                  <div>
+                    <label :for="'httpUrl-' + index" class="block text-sm font-medium text-gray-700">URL</label>
                     <input
                       type="url"
-                      :id="'url-' + index"
+                      :id="'httpUrl-' + index"
                       v-model="action.config.url"
                       placeholder="https://api.example.com/endpoint"
-                      class="block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
-                      required
+                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
                     />
                   </div>
-                </div>
-
-                <div class="col-span-full">
-                  <label :for="'body-' + index" class="block text-sm font-medium text-gray-700">Request Body</label>
-                  <div class="mt-1">
+                  <div>
+                    <label :for="'httpBody-' + index" class="block text-sm font-medium text-gray-700">Request Body</label>
                     <textarea
-                      :id="'body-' + index"
+                      :id="'httpBody-' + index"
                       v-model="action.config.body"
                       rows="4"
-                      placeholder="{ &#34;key&#34;: &#34;value&#34; }"
-                      class="block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200 font-mono"
+                      placeholder="Enter request body (JSON)"
+                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200 font-mono"
                     ></textarea>
-                    <p class="mt-1 text-xs text-gray-500">Enter JSON format data</p>
                   </div>
                 </div>
-              </template>
-            </Transition>
 
-            <!-- Email Configuration -->
-            <Transition name="fade">
-              <template v-if="action.type === 'email'">
-                <div class="col-span-full">
-                  <label :for="'to-' + index" class="block text-sm font-medium text-gray-700">To</label>
-                  <div class="mt-1">
+                <!-- Email Action -->
+                <div v-else-if="action.type === 'email'" class="space-y-4">
+                  <div>
+                    <label :for="'emailTo-' + index" class="block text-sm font-medium text-gray-700">To</label>
                     <input
                       type="email"
-                      :id="'to-' + index"
+                      :id="'emailTo-' + index"
                       v-model="action.config.to"
                       placeholder="recipient@example.com"
-                      class="block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
-                      required
+                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
                     />
                   </div>
-                </div>
-
-                <div class="col-span-full">
-                  <label :for="'subject-' + index" class="block text-sm font-medium text-gray-700">Subject</label>
-                  <div class="mt-1">
+                  <div>
+                    <label :for="'emailSubject-' + index" class="block text-sm font-medium text-gray-700">Subject</label>
                     <input
                       type="text"
-                      :id="'subject-' + index"
+                      :id="'emailSubject-' + index"
                       v-model="action.config.subject"
                       placeholder="Email subject"
-                      class="block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
-                      required
+                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
                     />
                   </div>
-                </div>
-
-                <div class="col-span-full">
-                  <label :for="'body-' + index" class="block text-sm font-medium text-gray-700">Email Body</label>
-                  <div class="mt-1">
+                  <div>
+                    <label :for="'emailBody-' + index" class="block text-sm font-medium text-gray-700">Body</label>
                     <textarea
-                      :id="'body-' + index"
+                      :id="'emailBody-' + index"
                       v-model="action.config.body"
                       rows="4"
-                      placeholder="Enter your email content here..."
-                      class="block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
-                      required
+                      placeholder="Enter email body"
+                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
                     ></textarea>
-                    <p class="mt-1 text-xs text-gray-500">Supports markdown formatting</p>
                   </div>
                 </div>
-              </template>
-            </Transition>
 
-            <!-- AI Configuration -->
-            <Transition name="fade">
-              <template v-if="action.type === 'ai'">
-                <div class="col-span-full md:col-span-1">
-                  <label :for="'model-' + index" class="block text-sm font-medium text-gray-700">AI Model</label>
-                  <div class="mt-1 relative">
+                <!-- AI Action -->
+                <div v-else-if="action.type === 'ai'" class="space-y-4">
+                  <div>
+                    <label :for="'aiTask-' + index" class="block text-sm font-medium text-gray-700">Task Type</label>
                     <select
-                      :id="'model-' + index"
-                      v-model="action.config.model"
-                      class="block w-full pl-4 pr-10 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
+                      :id="'aiTask-' + index"
+                      v-model="action.config.task"
+                      class="mt-1 block w-full pl-4 pr-10 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
                     >
-                      <option value="gpt-4">GPT-4</option>
-                      <option value="gpt-3.5-turbo">GPT-3.5 Turbo</option>
+                      <option value="summarize">Summarize Text</option>
+                      <option value="translate">Translate Text</option>
+                      <option value="classify">Classify Content</option>
+                      <option value="extract">Extract Information</option>
                     </select>
-                    <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                      <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                        <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                      </svg>
-                    </div>
                   </div>
-                </div>
-
-                <div class="col-span-full">
-                  <label :for="'prompt-' + index" class="block text-sm font-medium text-gray-700">Prompt</label>
-                  <div class="mt-1">
+                  <div>
+                    <label :for="'aiInput-' + index" class="block text-sm font-medium text-gray-700">Input</label>
                     <textarea
-                      :id="'prompt-' + index"
-                      v-model="action.config.prompt"
+                      :id="'aiInput-' + index"
+                      v-model="action.config.input"
                       rows="4"
-                      placeholder="Enter your AI prompt here..."
-                      class="block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
-                      required
+                      placeholder="Enter text to process"
+                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
                     ></textarea>
-                    <p class="mt-1 text-xs text-gray-500">Use clear, specific instructions for best results</p>
                   </div>
                 </div>
-              </template>
-            </Transition>
+              </Transition>
+            </div>
           </div>
         </div>
       </TransitionGroup>
 
       <!-- Add Action Button -->
-      <div class="flex justify-center mt-8">
+      <div class="mt-6">
         <button
           type="button"
           @click="addAction"
-          class="inline-flex items-center px-6 py-3 border border-transparent rounded-lg shadow-sm text-base font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-all duration-200 transform hover:scale-105"
+          class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
         >
-          <svg class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
-            <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
+          <svg class="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
           </svg>
           Add Action
         </button>
@@ -234,6 +197,125 @@ export default {
     actions: {
       type: Array,
       required: true
+    },
+    triggerType: {
+      type: String,
+      required: true
+    }
+  },
+  computed: {
+    allowedActions() {
+      // Define allowed actions for each trigger type
+      const actionMap = {
+        // Time-based triggers
+        schedule: [
+          { value: 'http', label: 'HTTP Request' },
+          { value: 'email', label: 'Send Email' },
+          { value: 'ai', label: 'AI Task' }
+        ],
+        interval: [
+          { value: 'http', label: 'HTTP Request' },
+          { value: 'email', label: 'Send Email' },
+          { value: 'ai', label: 'AI Task' }
+        ],
+        calendar: [
+          { value: 'http', label: 'HTTP Request' },
+          { value: 'email', label: 'Send Email' },
+          { value: 'ai', label: 'AI Task' }
+        ],
+        // File & Document triggers
+        file: [
+          { value: 'http', label: 'HTTP Request' },
+          { value: 'email', label: 'Send Email' },
+          { value: 'ai', label: 'AI Task' }
+        ],
+        database: [
+          { value: 'http', label: 'HTTP Request' },
+          { value: 'email', label: 'Send Email' }
+        ],
+        pdf: [
+          { value: 'http', label: 'HTTP Request' },
+          { value: 'email', label: 'Send Email' },
+          { value: 'ai', label: 'AI Task' }
+        ],
+        image: [
+          { value: 'http', label: 'HTTP Request' },
+          { value: 'email', label: 'Send Email' },
+          { value: 'ai', label: 'AI Task' }
+        ],
+        // Communication triggers
+        email: [
+          { value: 'http', label: 'HTTP Request' },
+          { value: 'email', label: 'Send Email' },
+          { value: 'ai', label: 'AI Task' }
+        ],
+        webhook: [
+          { value: 'http', label: 'HTTP Request' },
+          { value: 'email', label: 'Send Email' }
+        ],
+        api: [
+          { value: 'http', label: 'HTTP Request' },
+          { value: 'email', label: 'Send Email' }
+        ],
+        event: [
+          { value: 'http', label: 'HTTP Request' },
+          { value: 'email', label: 'Send Email' }
+        ],
+        // Integration triggers
+        github: [
+          { value: 'http', label: 'HTTP Request' },
+          { value: 'email', label: 'Send Email' }
+        ],
+        slack: [
+          { value: 'http', label: 'HTTP Request' },
+          { value: 'email', label: 'Send Email' }
+        ],
+        jira: [
+          { value: 'http', label: 'HTTP Request' },
+          { value: 'email', label: 'Send Email' }
+        ],
+        trello: [
+          { value: 'http', label: 'HTTP Request' },
+          { value: 'email', label: 'Send Email' }
+        ],
+        // Business triggers
+        salesforce: [
+          { value: 'http', label: 'HTTP Request' },
+          { value: 'email', label: 'Send Email' }
+        ],
+        shopify: [
+          { value: 'http', label: 'HTTP Request' },
+          { value: 'email', label: 'Send Email' }
+        ],
+        stripe: [
+          { value: 'http', label: 'HTTP Request' },
+          { value: 'email', label: 'Send Email' }
+        ],
+        zapier: [
+          { value: 'http', label: 'HTTP Request' },
+          { value: 'email', label: 'Send Email' }
+        ],
+        // Other triggers
+        manual: [
+          { value: 'http', label: 'HTTP Request' },
+          { value: 'email', label: 'Send Email' },
+          { value: 'ai', label: 'AI Task' }
+        ],
+        condition: [
+          { value: 'http', label: 'HTTP Request' },
+          { value: 'email', label: 'Send Email' }
+        ],
+        error: [
+          { value: 'http', label: 'HTTP Request' },
+          { value: 'email', label: 'Send Email' }
+        ],
+        custom: [
+          { value: 'http', label: 'HTTP Request' },
+          { value: 'email', label: 'Send Email' }
+        ]
+      };
+
+      return actionMap[this.triggerType] || [];
     }
   },
   methods: {

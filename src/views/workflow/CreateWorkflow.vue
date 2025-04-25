@@ -520,6 +520,7 @@
         <div v-else-if="currentStep === 2">
           <WorkflowActions
             :actions="form.actions"
+            :trigger-type="form.trigger.type"
             @add-action="addAction"
             @remove-action="removeAction"
           />
