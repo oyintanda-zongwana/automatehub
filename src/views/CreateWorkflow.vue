@@ -770,8 +770,10 @@
 <script setup>
 import { ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useWorkflowStore } from '../stores/workflow';
 
 const router = useRouter();
+const workflowStore = useWorkflowStore();
 const form = ref({
   name: '',
   description: '',
@@ -853,18 +855,8 @@ const handleSubmit = async () => {
       }))
     };
 
-    // Send to API
-    const response = await fetch('/api/workflows', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(workflowData)
-    });
-
-    if (!response.ok) {
-      throw new Error('Failed to create workflow');
-    }
+    // Create workflow using the store
+    await workflowStore.createWorkflow(workflowData);
 
     // Redirect to workflows list
     router.push('/workflows');
