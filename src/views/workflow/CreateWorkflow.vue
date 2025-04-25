@@ -935,29 +935,25 @@ export default {
         // Test connection based on trigger type
         switch (form.value.trigger.type) {
           case 'email':
-            // Test email connection
             await testEmailConnection();
             break;
           case 'github':
-            // Test GitHub connection
             await testGitHubConnection();
             break;
           case 'slack':
-            // Test Slack connection
             await testSlackConnection();
             break;
           case 'jira':
-            // Test Jira connection
             await testJiraConnection();
             break;
           case 'webhook':
-            // Test webhook endpoint
             await testWebhookEndpoint();
             break;
           case 'api':
-            // Test API endpoint
             await testApiEndpoint();
             break;
+          default:
+            throw new Error('Unsupported trigger type for connection testing');
         }
 
         connectionStatus.value = {
@@ -967,7 +963,7 @@ export default {
       } catch (error) {
         connectionStatus.value = {
           success: false,
-          message: `Connection failed: ${error.message}`
+          message: error.message
         };
       } finally {
         loading.value = false;
@@ -976,27 +972,170 @@ export default {
 
     // Connection test functions
     const testEmailConnection = async () => {
-      // Implement email connection test
+      const { provider, emailAddress, emailPassword, imapServer, smtpServer } = form.value.trigger.config;
+      
+      try {
+        const response = await fetch('/api/test-email-connection', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            provider,
+            emailAddress,
+            emailPassword,
+            imapServer,
+            smtpServer
+          })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || 'Failed to connect to email server');
+        }
+
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        throw new Error(`Email connection failed: ${error.message}`);
+      }
     };
 
     const testGitHubConnection = async () => {
-      // Implement GitHub connection test
+      const { githubToken, githubRepo } = form.value.trigger.config;
+      
+      try {
+        const response = await fetch('/api/test-github-connection', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            token: githubToken,
+            repo: githubRepo
+          })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || 'Failed to connect to GitHub');
+        }
+
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        throw new Error(`GitHub connection failed: ${error.message}`);
+      }
     };
 
     const testSlackConnection = async () => {
-      // Implement Slack connection test
+      const { slackToken, slackChannel } = form.value.trigger.config;
+      
+      try {
+        const response = await fetch('/api/test-slack-connection', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            token: slackToken,
+            channel: slackChannel
+          })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || 'Failed to connect to Slack');
+        }
+
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        throw new Error(`Slack connection failed: ${error.message}`);
+      }
     };
 
     const testJiraConnection = async () => {
-      // Implement Jira connection test
+      const { jiraDomain, jiraEmail, jiraToken, jiraProject } = form.value.trigger.config;
+      
+      try {
+        const response = await fetch('/api/test-jira-connection', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            domain: jiraDomain,
+            email: jiraEmail,
+            token: jiraToken,
+            project: jiraProject
+          })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || 'Failed to connect to Jira');
+        }
+
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        throw new Error(`Jira connection failed: ${error.message}`);
+      }
     };
 
     const testWebhookEndpoint = async () => {
-      // Implement webhook endpoint test
+      const { webhookSecret, webhookPath } = form.value.trigger.config;
+      
+      try {
+        const response = await fetch('/api/test-webhook-endpoint', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            secret: webhookSecret,
+            path: webhookPath
+          })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || 'Failed to test webhook endpoint');
+        }
+
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        throw new Error(`Webhook endpoint test failed: ${error.message}`);
+      }
     };
 
     const testApiEndpoint = async () => {
-      // Implement API endpoint test
+      const { apiEndpoint, apiKey } = form.value.trigger.config;
+      
+      try {
+        const response = await fetch('/api/test-api-endpoint', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            endpoint: apiEndpoint,
+            apiKey: apiKey
+          })
+        });
+
+        if (!response.ok) {
+          const error = await response.json();
+          throw new Error(error.message || 'Failed to test API endpoint');
+        }
+
+        const data = await response.json();
+        return data;
+      } catch (error) {
+        throw new Error(`API endpoint test failed: ${error.message}`);
+      }
     };
 
     return {
