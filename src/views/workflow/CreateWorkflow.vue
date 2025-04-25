@@ -163,82 +163,45 @@
                     v-model="form.trigger.type"
                     class="block w-full pl-4 pr-10 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
                   >
-                    <optgroup label="Basic Triggers">
-                      <option value="schedule">Schedule</option>
-                      <option value="webhook">Webhook</option>
-                      <option value="event">Event</option>
+                    <optgroup label="Time-based Triggers">
+                      <option value="schedule">Schedule (Cron)</option>
                       <option value="interval">Interval</option>
-                      <option value="api">API</option>
-                      <option value="manual">Manual</option>
+                      <option value="calendar">Calendar Event</option>
                     </optgroup>
 
                     <optgroup label="File & Document Triggers">
-                      <option value="file">File</option>
-                      <option value="database">Database</option>
-                      <option value="pdf">PDF</option>
-                      <option value="image">Image</option>
-                      <option value="document">Document</option>
+                      <option value="file">File Change</option>
+                      <option value="database">Database Change</option>
+                      <option value="pdf">PDF Document</option>
+                      <option value="image">Image File</option>
                     </optgroup>
 
                     <optgroup label="Communication Triggers">
                       <option value="email">Email</option>
-                      <option value="slack">Slack</option>
-                      <option value="discord">Discord</option>
-                      <option value="telegram">Telegram</option>
-                      <option value="whatsapp">WhatsApp</option>
-                      <option value="sms">SMS</option>
-                      <option value="voice">Voice Call</option>
+                      <option value="webhook">Webhook</option>
+                      <option value="api">API Call</option>
+                      <option value="event">System Event</option>
                     </optgroup>
 
-                    <optgroup label="Productivity Tools">
+                    <optgroup label="Integration Triggers">
                       <option value="github">GitHub</option>
+                      <option value="slack">Slack</option>
                       <option value="jira">Jira</option>
                       <option value="trello">Trello</option>
-                      <option value="asana">Asana</option>
-                      <option value="notion">Notion</option>
-                      <option value="airtable">Airtable</option>
                     </optgroup>
 
-                    <optgroup label="Business Tools">
+                    <optgroup label="Business Triggers">
                       <option value="salesforce">Salesforce</option>
-                      <option value="hubspot">HubSpot</option>
-                      <option value="zoho">Zoho</option>
-                      <option value="quickbooks">QuickBooks</option>
-                      <option value="xero">Xero</option>
-                    </optgroup>
-
-                    <optgroup label="E-commerce">
                       <option value="shopify">Shopify</option>
-                      <option value="woocommerce">WooCommerce</option>
-                      <option value="magento">Magento</option>
-                      <option value="bigcommerce">BigCommerce</option>
-                    </optgroup>
-
-                    <optgroup label="Payment Processing">
                       <option value="stripe">Stripe</option>
-                      <option value="paypal">PayPal</option>
-                      <option value="square">Square</option>
+                      <option value="zapier">Zapier</option>
                     </optgroup>
 
-                    <optgroup label="Marketing">
-                      <option value="mailchimp">Mailchimp</option>
-                      <option value="sendgrid">SendGrid</option>
-                      <option value="hubspot">HubSpot</option>
-                    </optgroup>
-
-                    <optgroup label="Communication Platforms">
-                      <option value="zoom">Zoom</option>
-                      <option value="teams">Microsoft Teams</option>
-                      <option value="meet">Google Meet</option>
-                      <option value="webex">Webex</option>
-                    </optgroup>
-
-                    <optgroup label="Social Media">
-                      <option value="facebook">Facebook</option>
-                      <option value="instagram">Instagram</option>
-                      <option value="twitter">Twitter</option>
-                      <option value="linkedin">LinkedIn</option>
-                      <option value="youtube">YouTube</option>
+                    <optgroup label="Other Triggers">
+                      <option value="manual">Manual Trigger</option>
+                      <option value="condition">Conditional</option>
+                      <option value="error">Error Event</option>
+                      <option value="custom">Custom Trigger</option>
                     </optgroup>
                   </select>
                   <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
