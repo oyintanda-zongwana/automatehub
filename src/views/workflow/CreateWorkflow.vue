@@ -230,44 +230,288 @@
                   </div>
                 </div>
 
-                <!-- Webhook Configuration -->
-                <div v-else-if="form.trigger.type === 'webhook'" class="space-y-6">
+                <!-- Email Configuration -->
+                <div v-else-if="form.trigger.type === 'email'" class="space-y-6">
                   <div>
-                    <label for="method" class="block text-sm font-medium text-gray-700">HTTP Method</label>
-                    <div class="mt-1 relative">
+                    <label for="emailProvider" class="block text-sm font-medium text-gray-700">Email Provider</label>
+                    <div class="mt-1">
                       <select
-                        id="method"
-                        v-model="form.trigger.config.method"
+                        id="emailProvider"
+                        v-model="form.trigger.config.provider"
                         class="block w-full pl-4 pr-10 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
                       >
-                        <option value="POST">POST</option>
-                        <option value="GET">GET</option>
+                        <option value="gmail">Gmail</option>
+                        <option value="outlook">Outlook</option>
+                        <option value="yahoo">Yahoo</option>
+                        <option value="custom">Custom IMAP/SMTP</option>
                       </select>
-                      <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
-                        <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
-                          <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
-                        </svg>
+                    </div>
+                  </div>
+
+                  <div v-if="form.trigger.config.provider === 'custom'">
+                    <div class="space-y-4">
+                      <div>
+                        <label for="imapServer" class="block text-sm font-medium text-gray-700">IMAP Server</label>
+                        <input
+                          type="text"
+                          id="imapServer"
+                          v-model="form.trigger.config.imapServer"
+                          placeholder="imap.example.com"
+                          class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
+                        />
+                      </div>
+                      <div>
+                        <label for="smtpServer" class="block text-sm font-medium text-gray-700">SMTP Server</label>
+                        <input
+                          type="text"
+                          id="smtpServer"
+                          v-model="form.trigger.config.smtpServer"
+                          placeholder="smtp.example.com"
+                          class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
+                        />
                       </div>
                     </div>
                   </div>
+
+                  <div>
+                    <label for="emailAddress" class="block text-sm font-medium text-gray-700">Email Address</label>
+                    <input
+                      type="email"
+                      id="emailAddress"
+                      v-model="form.trigger.config.emailAddress"
+                      placeholder="your@email.com"
+                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
+                    />
+                  </div>
+
+                  <div>
+                    <label for="emailPassword" class="block text-sm font-medium text-gray-700">Password/App Password</label>
+                    <input
+                      type="password"
+                      id="emailPassword"
+                      v-model="form.trigger.config.emailPassword"
+                      placeholder="Enter your password or app password"
+                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
+                    />
+                    <p class="mt-2 text-sm text-gray-500">For Gmail, use an App Password. For other providers, use your regular password.</p>
+                  </div>
+
+                  <div>
+                    <label for="emailFilter" class="block text-sm font-medium text-gray-700">Email Filter</label>
+                    <input
+                      type="text"
+                      id="emailFilter"
+                      v-model="form.trigger.config.emailFilter"
+                      placeholder="subject:Important from:someone@example.com"
+                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
+                    />
+                    <p class="mt-2 text-sm text-gray-500">Filter emails by subject, sender, or other criteria</p>
+                  </div>
                 </div>
 
-                <!-- Event Configuration -->
-                <div v-else-if="form.trigger.type === 'event'" class="space-y-6">
+                <!-- GitHub Configuration -->
+                <div v-else-if="form.trigger.type === 'github'" class="space-y-6">
                   <div>
-                    <label for="eventType" class="block text-sm font-medium text-gray-700">Event Type</label>
-                    <div class="mt-1">
-                      <input
-                        type="text"
-                        id="eventType"
-                        v-model="form.trigger.config.eventType"
-                        placeholder="user.created"
-                        class="block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
-                      />
-                    </div>
+                    <label for="githubToken" class="block text-sm font-medium text-gray-700">GitHub Personal Access Token</label>
+                    <input
+                      type="password"
+                      id="githubToken"
+                      v-model="form.trigger.config.githubToken"
+                      placeholder="ghp_xxxxxxxxxxxxxxxxxxxx"
+                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
+                    />
+                    <p class="mt-2 text-sm text-gray-500">Create a token with repo and workflow scopes at GitHub Settings > Developer Settings > Personal Access Tokens</p>
+                  </div>
+
+                  <div>
+                    <label for="githubRepo" class="block text-sm font-medium text-gray-700">Repository</label>
+                    <input
+                      type="text"
+                      id="githubRepo"
+                      v-model="form.trigger.config.githubRepo"
+                      placeholder="owner/repo"
+                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
+                    />
+                  </div>
+
+                  <div>
+                    <label for="githubEvent" class="block text-sm font-medium text-gray-700">Event Type</label>
+                    <select
+                      id="githubEvent"
+                      v-model="form.trigger.config.githubEvent"
+                      class="mt-1 block w-full pl-4 pr-10 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
+                    >
+                      <option value="push">Push</option>
+                      <option value="pull_request">Pull Request</option>
+                      <option value="issues">Issues</option>
+                      <option value="release">Release</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Slack Configuration -->
+                <div v-else-if="form.trigger.type === 'slack'" class="space-y-6">
+                  <div>
+                    <label for="slackToken" class="block text-sm font-medium text-gray-700">Slack Bot Token</label>
+                    <input
+                      type="password"
+                      id="slackToken"
+                      v-model="form.trigger.config.slackToken"
+                      placeholder="xoxb-xxxxxxxxxxxx-xxxxxxxxxxxx-xxxxxxxxxxxxxxxxxxxxxxxx"
+                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
+                    />
+                    <p class="mt-2 text-sm text-gray-500">Create a bot token at api.slack.com/apps > Your App > OAuth & Permissions</p>
+                  </div>
+
+                  <div>
+                    <label for="slackChannel" class="block text-sm font-medium text-gray-700">Channel</label>
+                    <input
+                      type="text"
+                      id="slackChannel"
+                      v-model="form.trigger.config.slackChannel"
+                      placeholder="#general"
+                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
+                    />
+                  </div>
+
+                  <div>
+                    <label for="slackEvent" class="block text-sm font-medium text-gray-700">Event Type</label>
+                    <select
+                      id="slackEvent"
+                      v-model="form.trigger.config.slackEvent"
+                      class="mt-1 block w-full pl-4 pr-10 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
+                    >
+                      <option value="message">New Message</option>
+                      <option value="reaction">Reaction Added</option>
+                      <option value="mention">Mention</option>
+                    </select>
+                  </div>
+                </div>
+
+                <!-- Jira Configuration -->
+                <div v-else-if="form.trigger.type === 'jira'" class="space-y-6">
+                  <div>
+                    <label for="jiraDomain" class="block text-sm font-medium text-gray-700">Jira Domain</label>
+                    <input
+                      type="text"
+                      id="jiraDomain"
+                      v-model="form.trigger.config.jiraDomain"
+                      placeholder="your-domain.atlassian.net"
+                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
+                    />
+                  </div>
+
+                  <div>
+                    <label for="jiraEmail" class="block text-sm font-medium text-gray-700">Email</label>
+                    <input
+                      type="email"
+                      id="jiraEmail"
+                      v-model="form.trigger.config.jiraEmail"
+                      placeholder="your@email.com"
+                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
+                    />
+                  </div>
+
+                  <div>
+                    <label for="jiraToken" class="block text-sm font-medium text-gray-700">API Token</label>
+                    <input
+                      type="password"
+                      id="jiraToken"
+                      v-model="form.trigger.config.jiraToken"
+                      placeholder="Enter your Jira API token"
+                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
+                    />
+                    <p class="mt-2 text-sm text-gray-500">Create an API token at id.atlassian.com/manage-profile/security/api-tokens</p>
+                  </div>
+
+                  <div>
+                    <label for="jiraProject" class="block text-sm font-medium text-gray-700">Project Key</label>
+                    <input
+                      type="text"
+                      id="jiraProject"
+                      v-model="form.trigger.config.jiraProject"
+                      placeholder="PROJ"
+                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
+                    />
+                  </div>
+                </div>
+
+                <!-- Webhook Configuration -->
+                <div v-else-if="form.trigger.type === 'webhook'" class="space-y-6">
+                  <div>
+                    <label for="webhookSecret" class="block text-sm font-medium text-gray-700">Webhook Secret</label>
+                    <input
+                      type="password"
+                      id="webhookSecret"
+                      v-model="form.trigger.config.webhookSecret"
+                      placeholder="Enter a secret key for webhook verification"
+                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
+                    />
+                    <p class="mt-2 text-sm text-gray-500">This secret will be used to verify incoming webhook requests</p>
+                  </div>
+
+                  <div>
+                    <label for="webhookPath" class="block text-sm font-medium text-gray-700">Webhook Path</label>
+                    <input
+                      type="text"
+                      id="webhookPath"
+                      v-model="form.trigger.config.webhookPath"
+                      placeholder="/webhook/custom-endpoint"
+                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
+                    />
+                  </div>
+                </div>
+
+                <!-- API Configuration -->
+                <div v-else-if="form.trigger.type === 'api'" class="space-y-6">
+                  <div>
+                    <label for="apiEndpoint" class="block text-sm font-medium text-gray-700">API Endpoint</label>
+                    <input
+                      type="url"
+                      id="apiEndpoint"
+                      v-model="form.trigger.config.apiEndpoint"
+                      placeholder="https://api.example.com/endpoint"
+                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
+                    />
+                  </div>
+
+                  <div>
+                    <label for="apiKey" class="block text-sm font-medium text-gray-700">API Key</label>
+                    <input
+                      type="password"
+                      id="apiKey"
+                      v-model="form.trigger.config.apiKey"
+                      placeholder="Enter your API key"
+                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
+                    />
+                  </div>
+
+                  <div>
+                    <label for="apiInterval" class="block text-sm font-medium text-gray-700">Check Interval (minutes)</label>
+                    <input
+                      type="number"
+                      id="apiInterval"
+                      v-model="form.trigger.config.apiInterval"
+                      min="1"
+                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
+                    />
                   </div>
                 </div>
               </Transition>
+
+              <!-- Connection Test Button -->
+              <div v-if="form.trigger.type !== 'schedule' && form.trigger.type !== 'manual'" class="mt-6">
+                <button
+                  type="button"
+                  @click="testConnection"
+                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                >
+                  Test Connection
+                </button>
+                <p v-if="connectionStatus" class="mt-2 text-sm" :class="connectionStatus.success ? 'text-green-600' : 'text-red-600'">
+                  {{ connectionStatus.message }}
+                </p>
+              </div>
             </div>
           </div>
         </div>
@@ -350,6 +594,7 @@ export default {
     const loading = ref(false);
     const error = ref(null);
     const currentStep = ref(0);
+    const connectionStatus = ref(null);
 
     const templates = [
       {
@@ -682,6 +927,78 @@ export default {
       }
     };
 
+    const testConnection = async () => {
+      try {
+        loading.value = true;
+        connectionStatus.value = null;
+
+        // Test connection based on trigger type
+        switch (form.value.trigger.type) {
+          case 'email':
+            // Test email connection
+            await testEmailConnection();
+            break;
+          case 'github':
+            // Test GitHub connection
+            await testGitHubConnection();
+            break;
+          case 'slack':
+            // Test Slack connection
+            await testSlackConnection();
+            break;
+          case 'jira':
+            // Test Jira connection
+            await testJiraConnection();
+            break;
+          case 'webhook':
+            // Test webhook endpoint
+            await testWebhookEndpoint();
+            break;
+          case 'api':
+            // Test API endpoint
+            await testApiEndpoint();
+            break;
+        }
+
+        connectionStatus.value = {
+          success: true,
+          message: 'Connection successful!'
+        };
+      } catch (error) {
+        connectionStatus.value = {
+          success: false,
+          message: `Connection failed: ${error.message}`
+        };
+      } finally {
+        loading.value = false;
+      }
+    };
+
+    // Connection test functions
+    const testEmailConnection = async () => {
+      // Implement email connection test
+    };
+
+    const testGitHubConnection = async () => {
+      // Implement GitHub connection test
+    };
+
+    const testSlackConnection = async () => {
+      // Implement Slack connection test
+    };
+
+    const testJiraConnection = async () => {
+      // Implement Jira connection test
+    };
+
+    const testWebhookEndpoint = async () => {
+      // Implement webhook endpoint test
+    };
+
+    const testApiEndpoint = async () => {
+      // Implement API endpoint test
+    };
+
     return {
       form,
       loading,
@@ -692,7 +1009,9 @@ export default {
       selectTemplate,
       addAction,
       removeAction,
-      handleSubmit
+      handleSubmit,
+      connectionStatus,
+      testConnection
     };
   }
 };
