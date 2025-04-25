@@ -2,6 +2,22 @@
   <div class="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
     <h1 class="text-2xl font-bold text-gray-900 mb-8">Create Workflow</h1>
 
+    <!-- Template Selection -->
+    <div class="mb-8">
+      <h3 class="text-lg font-medium text-gray-900 mb-4">Choose a Template</h3>
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <button
+          v-for="template in templates"
+          :key="template.id"
+          @click="selectTemplate(template)"
+          class="p-4 border border-gray-200 rounded-lg hover:border-indigo-500 hover:shadow-md transition-all duration-200 text-left"
+        >
+          <h4 class="font-medium text-gray-900">{{ template.name }}</h4>
+          <p class="text-sm text-gray-500 mt-1">{{ template.description }}</p>
+        </button>
+      </div>
+    </div>
+
     <form @submit.prevent="handleSubmit" class="space-y-8">
       <!-- Basic Information -->
       <div>
@@ -774,6 +790,237 @@ import { useWorkflowStore } from '../stores/workflow';
 
 const router = useRouter();
 const workflowStore = useWorkflowStore();
+
+const templates = [
+  {
+    id: 'auto-translation',
+    name: 'Auto Document Translation',
+    description: 'Automatically translate documents between multiple languages',
+    trigger: {
+      type: 'file',
+      config: {
+        fileEvent: 'created',
+        filePath: ''
+      }
+    },
+    actions: [
+      {
+        type: 'http',
+        config: {
+          method: 'POST',
+          url: 'https://api.translation.service/translate',
+          body: '{"source": "{{file.content}}", "target_language": "en"}'
+        }
+      }
+    ]
+  },
+  {
+    id: 'email-summarizer',
+    name: 'Email Summarizer',
+    description: 'Generate concise summaries of incoming emails',
+    trigger: {
+      type: 'email',
+      config: {
+        emailAddress: '',
+        emailFilter: ''
+      }
+    },
+    actions: [
+      {
+        type: 'http',
+        config: {
+          method: 'POST',
+          url: 'https://api.summarization.service/summarize',
+          body: '{"text": "{{email.content}}"}'
+        }
+      }
+    ]
+  },
+  {
+    id: 'daily-planner',
+    name: 'Daily Planner Generator',
+    description: 'Create daily task plans based on calendar events',
+    trigger: {
+      type: 'schedule',
+      config: {
+        schedule: '0 0 * * *'
+      }
+    },
+    actions: [
+      {
+        type: 'http',
+        config: {
+          method: 'POST',
+          url: 'https://api.planner.service/generate',
+          body: '{"date": "{{current_date}}"}'
+        }
+      }
+    ]
+  },
+  {
+    id: 'content-calendar',
+    name: 'Content Calendar Generator',
+    description: 'Generate social media content calendar',
+    trigger: {
+      type: 'schedule',
+      config: {
+        schedule: '0 0 1 * *'
+      }
+    },
+    actions: [
+      {
+        type: 'http',
+        config: {
+          method: 'POST',
+          url: 'https://api.content.service/calendar',
+          body: '{"month": "{{next_month}}"}'
+        }
+      }
+    ]
+  },
+  {
+    id: 'sentiment-analysis',
+    name: 'Sentiment Analysis',
+    description: 'Analyze sentiment of social media posts',
+    trigger: {
+      type: 'api',
+      config: {
+        endpoint: 'https://api.social.service/feed',
+        checkInterval: 5
+      }
+    },
+    actions: [
+      {
+        type: 'http',
+        config: {
+          method: 'POST',
+          url: 'https://api.sentiment.service/analyze',
+          body: '{"text": "{{post.content}}"}'
+        }
+      }
+    ]
+  },
+  {
+    id: 'contract-reviewer',
+    name: 'Contract Reviewer',
+    description: 'Review and analyze legal contracts',
+    trigger: {
+      type: 'file',
+      config: {
+        fileEvent: 'created',
+        filePath: ''
+      }
+    },
+    actions: [
+      {
+        type: 'http',
+        config: {
+          method: 'POST',
+          url: 'https://api.legal.service/review',
+          body: '{"document": "{{file.content}}"}'
+        }
+      }
+    ]
+  },
+  {
+    id: 'seo-scorer',
+    name: 'Blog SEO Score Generator',
+    description: 'Generate SEO scores for blog posts',
+    trigger: {
+      type: 'file',
+      config: {
+        fileEvent: 'created',
+        filePath: ''
+      }
+    },
+    actions: [
+      {
+        type: 'http',
+        config: {
+          method: 'POST',
+          url: 'https://api.seo.service/analyze',
+          body: '{"content": "{{file.content}}"}'
+        }
+      }
+    ]
+  },
+  {
+    id: 'pdf-extractor',
+    name: 'PDF Content Extractor',
+    description: 'Extract and process content from PDF files',
+    trigger: {
+      type: 'file',
+      config: {
+        fileEvent: 'created',
+        filePath: ''
+      }
+    },
+    actions: [
+      {
+        type: 'http',
+        config: {
+          method: 'POST',
+          url: 'https://api.pdf.service/extract',
+          body: '{"file": "{{file.path}}"}'
+        }
+      }
+    ]
+  },
+  {
+    id: 'ocr-processor',
+    name: 'OCR from Images',
+    description: 'Extract text from images using OCR',
+    trigger: {
+      type: 'file',
+      config: {
+        fileEvent: 'created',
+        filePath: ''
+      }
+    },
+    actions: [
+      {
+        type: 'http',
+        config: {
+          method: 'POST',
+          url: 'https://api.ocr.service/process',
+          body: '{"image": "{{file.path}}"}'
+        }
+      }
+    ]
+  },
+  {
+    id: 'ticket-tagger',
+    name: 'Multi-language Support Ticket Tagger',
+    description: 'Automatically tag support tickets in multiple languages',
+    trigger: {
+      type: 'api',
+      config: {
+        endpoint: 'https://api.support.service/tickets',
+        checkInterval: 1
+      }
+    },
+    actions: [
+      {
+        type: 'http',
+        config: {
+          method: 'POST',
+          url: 'https://api.nlp.service/tag',
+          body: '{"text": "{{ticket.content}}", "language": "{{ticket.language}}"}'
+        }
+      }
+    ]
+  }
+];
+
+const selectTemplate = (template) => {
+  form.value = {
+    name: template.name,
+    description: template.description,
+    trigger: { ...template.trigger },
+    actions: template.actions.map(action => ({ ...action }))
+  };
+};
+
 const form = ref({
   name: '',
   description: '',
