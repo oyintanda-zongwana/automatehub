@@ -163,128 +163,83 @@
                     v-model="form.trigger.type"
                     class="block w-full pl-4 pr-10 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
                   >
-                    <option value="schedule">Schedule</option>
-                    <option value="webhook">Webhook</option>
-                    <option value="event">Event</option>
-                    <option value="interval">Interval</option>
-                    <option value="api">API</option>
-                    <option value="manual">Manual</option>
-                    <option value="database">Database</option>
-                    <option value="file">File</option>
-                    <option value="email">Email</option>
-                    <option value="slack">Slack</option>
-                    <option value="github">GitHub</option>
-                    <option value="jira">Jira</option>
-                    <option value="trello">Trello</option>
-                    <option value="asana">Asana</option>
-                    <option value="microsoft">Microsoft 365</option>
-                    <option value="google">Google Workspace</option>
-                    <option value="salesforce">Salesforce</option>
-                    <option value="zapier">Zapier</option>
-                    <option value="airtable">Airtable</option>
-                    <option value="notion">Notion</option>
-                    <option value="discord">Discord</option>
-                    <option value="telegram">Telegram</option>
-                    <option value="whatsapp">WhatsApp</option>
-                    <option value="sms">SMS</option>
-                    <option value="voice">Voice Call</option>
-                    <option value="weather">Weather</option>
-                    <option value="stock">Stock Market</option>
-                    <option value="crypto">Cryptocurrency</option>
-                    <option value="news">News</option>
-                    <option value="rss">RSS Feed</option>
-                    <option value="calendar">Calendar</option>
-                    <option value="meeting">Meeting</option>
-                    <option value="reminder">Reminder</option>
-                    <option value="alarm">Alarm</option>
-                    <option value="sensor">IoT Sensor</option>
-                    <option value="device">Smart Device</option>
-                    <option value="location">Location</option>
-                    <option value="traffic">Traffic</option>
-                    <option value="flight">Flight Status</option>
-                    <option value="train">Train Schedule</option>
-                    <option value="bus">Bus Schedule</option>
-                    <option value="uber">Uber</option>
-                    <option value="lyft">Lyft</option>
-                    <option value="doordash">DoorDash</option>
-                    <option value="ubereats">Uber Eats</option>
-                    <option value="grubhub">GrubHub</option>
-                    <option value="instacart">Instacart</option>
-                    <option value="amazon">Amazon</option>
-                    <option value="ebay">eBay</option>
-                    <option value="etsy">Etsy</option>
-                    <option value="shopify">Shopify</option>
-                    <option value="woocommerce">WooCommerce</option>
-                    <option value="magento">Magento</option>
-                    <option value="bigcommerce">BigCommerce</option>
-                    <option value="stripe">Stripe</option>
-                    <option value="paypal">PayPal</option>
-                    <option value="square">Square</option>
-                    <option value="quickbooks">QuickBooks</option>
-                    <option value="xero">Xero</option>
-                    <option value="freshbooks">FreshBooks</option>
-                    <option value="wave">Wave</option>
-                    <option value="zoho">Zoho</option>
-                    <option value="hubspot">HubSpot</option>
-                    <option value="mailchimp">Mailchimp</option>
-                    <option value="sendgrid">SendGrid</option>
-                    <option value="twilio">Twilio</option>
-                    <option value="plivo">Plivo</option>
-                    <option value="bandwidth">Bandwidth</option>
-                    <option value="vonage">Vonage</option>
-                    <option value="ringcentral">RingCentral</option>
-                    <option value="zoom">Zoom</option>
-                    <option value="teams">Microsoft Teams</option>
-                    <option value="meet">Google Meet</option>
-                    <option value="webex">Webex</option>
-                    <option value="slack">Slack</option>
-                    <option value="discord">Discord</option>
-                    <option value="telegram">Telegram</option>
-                    <option value="whatsapp">WhatsApp</option>
-                    <option value="signal">Signal</option>
-                    <option value="viber">Viber</option>
-                    <option value="line">Line</option>
-                    <option value="wechat">WeChat</option>
-                    <option value="kakao">KakaoTalk</option>
-                    <option value="vkontakte">VKontakte</option>
-                    <option value="odnoklassniki">Odnoklassniki</option>
-                    <option value="facebook">Facebook</option>
-                    <option value="instagram">Instagram</option>
-                    <option value="twitter">Twitter</option>
-                    <option value="linkedin">LinkedIn</option>
-                    <option value="pinterest">Pinterest</option>
-                    <option value="tiktok">TikTok</option>
-                    <option value="youtube">YouTube</option>
-                    <option value="twitch">Twitch</option>
-                    <option value="reddit">Reddit</option>
-                    <option value="medium">Medium</option>
-                    <option value="dev">Dev.to</option>
-                    <option value="hashnode">Hashnode</option>
-                    <option value="wordpress">WordPress</option>
-                    <option value="wix">Wix</option>
-                    <option value="squarespace">Squarespace</option>
-                    <option value="webflow">Webflow</option>
-                    <option value="shopify">Shopify</option>
-                    <option value="bigcommerce">BigCommerce</option>
-                    <option value="magento">Magento</option>
-                    <option value="woocommerce">WooCommerce</option>
-                    <option value="prestashop">PrestaShop</option>
-                    <option value="opencart">OpenCart</option>
-                    <option value="nopcommerce">nopCommerce</option>
-                    <option value="oscommerce">osCommerce</option>
-                    <option value="zencart">Zen Cart</option>
-                    <option value="xcart">X-Cart</option>
-                    <option value="spree">Spree</option>
-                    <option value="solidus">Solidus</option>
-                    <option value="sylius">Sylius</option>
-                    <option value="vendure">Vendure</option>
-                    <option value="medusa">Medusa</option>
-                    <option value="saleor">Saleor</option>
-                    <option value="reaction">Reaction</option>
-                    <option value="bigcartel">Big Cartel</option>
-                    <option value="ecwid">Ecwid</option>
-                    <option value="volusion">Volusion</option>
-                    <option value="3dcart">3dcart</option>
+                    <optgroup label="Basic Triggers">
+                      <option value="schedule">Schedule</option>
+                      <option value="webhook">Webhook</option>
+                      <option value="event">Event</option>
+                      <option value="interval">Interval</option>
+                      <option value="api">API</option>
+                      <option value="manual">Manual</option>
+                    </optgroup>
+
+                    <optgroup label="File & Document Triggers">
+                      <option value="file">File</option>
+                      <option value="database">Database</option>
+                      <option value="pdf">PDF</option>
+                      <option value="image">Image</option>
+                      <option value="document">Document</option>
+                    </optgroup>
+
+                    <optgroup label="Communication Triggers">
+                      <option value="email">Email</option>
+                      <option value="slack">Slack</option>
+                      <option value="discord">Discord</option>
+                      <option value="telegram">Telegram</option>
+                      <option value="whatsapp">WhatsApp</option>
+                      <option value="sms">SMS</option>
+                      <option value="voice">Voice Call</option>
+                    </optgroup>
+
+                    <optgroup label="Productivity Tools">
+                      <option value="github">GitHub</option>
+                      <option value="jira">Jira</option>
+                      <option value="trello">Trello</option>
+                      <option value="asana">Asana</option>
+                      <option value="notion">Notion</option>
+                      <option value="airtable">Airtable</option>
+                    </optgroup>
+
+                    <optgroup label="Business Tools">
+                      <option value="salesforce">Salesforce</option>
+                      <option value="hubspot">HubSpot</option>
+                      <option value="zoho">Zoho</option>
+                      <option value="quickbooks">QuickBooks</option>
+                      <option value="xero">Xero</option>
+                    </optgroup>
+
+                    <optgroup label="E-commerce">
+                      <option value="shopify">Shopify</option>
+                      <option value="woocommerce">WooCommerce</option>
+                      <option value="magento">Magento</option>
+                      <option value="bigcommerce">BigCommerce</option>
+                    </optgroup>
+
+                    <optgroup label="Payment Processing">
+                      <option value="stripe">Stripe</option>
+                      <option value="paypal">PayPal</option>
+                      <option value="square">Square</option>
+                    </optgroup>
+
+                    <optgroup label="Marketing">
+                      <option value="mailchimp">Mailchimp</option>
+                      <option value="sendgrid">SendGrid</option>
+                      <option value="hubspot">HubSpot</option>
+                    </optgroup>
+
+                    <optgroup label="Communication Platforms">
+                      <option value="zoom">Zoom</option>
+                      <option value="teams">Microsoft Teams</option>
+                      <option value="meet">Google Meet</option>
+                      <option value="webex">Webex</option>
+                    </optgroup>
+
+                    <optgroup label="Social Media">
+                      <option value="facebook">Facebook</option>
+                      <option value="instagram">Instagram</option>
+                      <option value="twitter">Twitter</option>
+                      <option value="linkedin">LinkedIn</option>
+                      <option value="youtube">YouTube</option>
+                    </optgroup>
                   </select>
                   <div class="absolute inset-y-0 right-0 flex items-center pr-3 pointer-events-none">
                     <svg class="h-5 w-5 text-gray-400" viewBox="0 0 20 20" fill="currentColor">
