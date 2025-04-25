@@ -3,7 +3,7 @@ import Home from '../views/Home.vue';
 import Register from '../views/Register.vue';
 import Login from '../views/Login.vue';
 import Dashboard from '../views/Dashboard.vue';
-import CreateWorkflow from '../views/CreateWorkflow.vue';
+import CreateWorkflow from '../views/workflow/CreateWorkflow.vue';
 import PricingPlans from '../components/PricingPlans.vue';
 import { useAuthStore } from '../stores/auth';
 
