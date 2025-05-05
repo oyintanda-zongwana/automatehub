@@ -237,25 +237,35 @@
   </div>
 </template>
 
-<script setup>
+<script>
 import { ref, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from './stores/auth'
 
-const router = useRouter()
-const authStore = useAuthStore()
-const mobileMenuOpen = ref(false)
+export default {
+  name: 'App',
+  setup() {
+    const router = useRouter()
+    const authStore = useAuthStore()
+    const mobileMenuOpen = ref(false)
 
-const isAuthenticated = computed(() => authStore.isAuthenticated)
+    const isAuthenticated = computed(() => authStore.isAuthenticated)
 
-const logout = async () => {
-  await authStore.logout()
-  router.push('/')
+    const logout = async () => {
+      await authStore.logout()
+      router.push('/')
+    }
+
+    // Initialize auth state when the app starts
+    authStore.initializeAuth()
+
+    return {
+      mobileMenuOpen,
+      isAuthenticated,
+      logout
+    }
+  }
 }
-
-onMounted(() => {
-  authStore.initializeAuth()
-})
 </script>
 
 <style>
