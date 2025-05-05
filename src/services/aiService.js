@@ -8,11 +8,16 @@ class AIService {
 
   async makeRequest(messages) {
     try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        throw new Error('Authentication required');
+      }
+
       const response = await fetch(`${this.baseURL}/ai/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${this.apiKey}`
+          'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify({
           model: AI_CONFIG.defaultModel,
@@ -27,7 +32,8 @@ class AIService {
       });
 
       if (!response.ok) {
-        throw new Error(`AI API error: ${response.statusText}`);
+        const errorData = await response.json().catch(() => ({}));
+        throw new Error(`AI API error: ${errorData.message || response.statusText}`);
       }
 
       const data = await response.json();
