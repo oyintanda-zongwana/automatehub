@@ -21,7 +21,7 @@ export default defineConfig({
     strictPort: true,
     proxy: {
       '/api': {
-        target: process.env.VITE_API_URL || 'http://localhost:5000',
+        target: 'https://automatehub-pdpd.onrender.com/api',
         changeOrigin: true,
       },
     },
