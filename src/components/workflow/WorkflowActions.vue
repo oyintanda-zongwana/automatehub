@@ -156,6 +156,41 @@
                       <option value="extract">Extract Information</option>
                     </select>
                   </div>
+
+                  <!-- Task-specific configuration -->
+                  <div v-if="action.config.task === 'translate'">
+                    <label :for="'targetLanguage-' + index" class="block text-sm font-medium text-gray-700">Target Language</label>
+                    <input
+                      type="text"
+                      :id="'targetLanguage-' + index"
+                      v-model="action.config.targetLanguage"
+                      placeholder="e.g., Spanish, French, German"
+                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
+                    />
+                  </div>
+
+                  <div v-if="action.config.task === 'classify'">
+                    <label :for="'categories-' + index" class="block text-sm font-medium text-gray-700">Categories (comma-separated)</label>
+                    <input
+                      type="text"
+                      :id="'categories-' + index"
+                      v-model="action.config.categories"
+                      placeholder="e.g., Positive, Negative, Neutral"
+                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
+                    />
+                  </div>
+
+                  <div v-if="action.config.task === 'extract'">
+                    <label :for="'fields-' + index" class="block text-sm font-medium text-gray-700">Fields to Extract (comma-separated)</label>
+                    <input
+                      type="text"
+                      :id="'fields-' + index"
+                      v-model="action.config.fields"
+                      placeholder="e.g., name, email, phone"
+                      class="mt-1 block w-full px-4 py-3 rounded-lg border-gray-300 shadow-sm focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm transition-all duration-200"
+                    />
+                  </div>
+
                   <div>
                     <label :for="'aiInput-' + index" class="block text-sm font-medium text-gray-700">Input</label>
                     <textarea
@@ -191,6 +226,8 @@
 </template>
 
 <script>
+import { aiService } from '@/services/aiService';
+
 export default {
   name: 'WorkflowActions',
   props: {
@@ -201,6 +238,62 @@ export default {
     triggerType: {
       type: String,
       required: true
+    }
+  },
+  methods: {
+    async executeAIAction(action) {
+      try {
+        let result;
+        switch (action.config.task) {
+          case 'summarize':
+            result = await aiService.summarizeText(action.config.input);
+            break;
+          case 'translate':
+            result = await aiService.translateText(action.config.input, action.config.targetLanguage);
+            break;
+          case 'classify':
+            result = await aiService.classifyContent(action.config.input, action.config.categories);
+            break;
+          case 'extract':
+            result = await aiService.extractInformation(action.config.input, action.config.fields);
+            break;
+          default:
+            throw new Error(`Unknown AI task: ${action.config.task}`);
+        }
+        return result.choices[0].message.content;
+      } catch (error) {
+        console.error('AI action failed:', error);
+        throw error;
+      }
+    },
+    addAction() {
+      const newAction = {
+        type: 'http',
+        config: {
+          method: 'GET',
+          url: '',
+          body: ''
+        }
+      };
+
+      // Initialize AI action if selected
+      if (this.triggerType === 'ai') {
+        newAction.type = 'ai';
+        newAction.config = {
+          task: 'summarize',
+          input: '',
+          targetLanguage: '',
+          categories: '',
+          fields: ''
+        };
+      }
+
+      this.$emit('update:actions', [...this.actions, newAction]);
+    },
+    removeAction(index) {
+      const updatedActions = [...this.actions];
+      updatedActions.splice(index, 1);
+      this.$emit('update:actions', updatedActions);
     }
   },
   computed: {
@@ -318,12 +411,12 @@ export default {
       return actionMap[this.triggerType] || [];
     }
   },
-  methods: {
-    addAction() {
-      this.$emit('add-action');
-    },
-    removeAction(index) {
-      this.$emit('remove-action', index);
+  watch: {
+    'actions': {
+      deep: true,
+      handler(newActions) {
+        this.$emit('update:actions', newActions);
+      }
     }
   }
 };
