@@ -28,7 +28,8 @@ router.post('/generate', auth, async (req, res) => {
     });
 
     if (!response.ok) {
-      throw new Error(`AI API error: ${response.statusText}`);
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(`AI API error: ${errorData.message || response.statusText}`);
     }
 
     const data = await response.json();
