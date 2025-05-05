@@ -91,7 +91,7 @@
 </template>
 
 <script>
-import { aiService } from '@/services/aiService';
+import { aiService } from '../services/aiService';
 
 export default {
   name: 'AITest',
