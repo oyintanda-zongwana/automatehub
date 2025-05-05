@@ -3,12 +3,12 @@ import { AI_CONFIG } from '../config/ai';
 class AIService {
   constructor() {
     this.apiKey = AI_CONFIG.apiKey;
-    this.baseURL = AI_CONFIG.baseURL;
+    this.baseURL = '/api'; // Use our backend API endpoint
   }
 
   async makeRequest(messages) {
     try {
-      const response = await fetch(`${this.baseURL}/services/aigc/text-generation/generation`, {
+      const response = await fetch(`${this.baseURL}/ai/generate`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
