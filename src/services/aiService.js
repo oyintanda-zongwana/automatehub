@@ -1,25 +1,43 @@
-import OpenAI from 'openai';
 import { AI_CONFIG } from '../config/ai';
 
 class AIService {
   constructor() {
-    this.openai = new OpenAI({
-      apiKey: AI_CONFIG.apiKey,
-      baseURL: AI_CONFIG.baseURL
-    });
+    this.apiKey = AI_CONFIG.apiKey;
+    this.baseURL = AI_CONFIG.baseURL;
   }
 
   async makeRequest(messages) {
     try {
-      const completion = await this.openai.chat.completions.create({
-        model: AI_CONFIG.defaultModel,
-        messages,
-        max_tokens: AI_CONFIG.maxTokens,
-        temperature: AI_CONFIG.temperature
-      }, {
-        path: '/services/aigc/text-generation/generation'
+      const response = await fetch(`${this.baseURL}/services/aigc/text-generation/generation`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${this.apiKey}`
+        },
+        body: JSON.stringify({
+          model: AI_CONFIG.defaultModel,
+          input: {
+            messages: messages
+          },
+          parameters: {
+            max_tokens: AI_CONFIG.maxTokens,
+            temperature: AI_CONFIG.temperature
+          }
+        })
       });
-      return completion;
+
+      if (!response.ok) {
+        throw new Error(`AI API error: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      return {
+        choices: [{
+          message: {
+            content: data.output.text
+          }
+        }]
+      };
     } catch (error) {
       console.error('AI request failed:', error);
       throw error;
