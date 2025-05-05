@@ -248,6 +248,7 @@ export default {
     const router = useRouter()
     const authStore = useAuthStore()
     const mobileMenuOpen = ref(false)
+    const isInitialized = ref(false)
 
     const isAuthenticated = computed(() => authStore.isAuthenticated)
 
@@ -257,12 +258,21 @@ export default {
     }
 
     // Initialize auth state when the app starts
-    authStore.initializeAuth()
+    onMounted(async () => {
+      try {
+        await authStore.initializeAuth()
+        isInitialized.value = true
+      } catch (error) {
+        console.error('Failed to initialize auth:', error)
+        isInitialized.value = true // Still set to true to show the app
+      }
+    })
 
     return {
       mobileMenuOpen,
       isAuthenticated,
-      logout
+      logout,
+      isInitialized
     }
   }
 }
