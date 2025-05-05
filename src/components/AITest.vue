@@ -92,9 +92,16 @@
 
 <script>
 import { aiService } from '../services/aiService';
+import { useAuthStore } from '../stores/auth';
+import { storeToRefs } from 'pinia';
 
 export default {
   name: 'AITest',
+  setup() {
+    const authStore = useAuthStore();
+    const { isAuthenticated } = storeToRefs(authStore);
+    return { isAuthenticated };
+  },
   data() {
     return {
       selectedTask: 'summarize',
@@ -109,6 +116,11 @@ export default {
   },
   methods: {
     async testAIService() {
+      if (!this.isAuthenticated) {
+        this.error = 'Please log in to use the AI service';
+        return;
+      }
+
       this.isLoading = true;
       this.error = null;
       this.result = null;
