@@ -5,7 +5,9 @@ class AIService {
     try {
       const response = await axios.post('/api/ai/generate', {
         model: 'qwen-plus',
-        input: messages,
+        input: {
+          messages: messages
+        },
         parameters: {
           max_tokens: 2000,
           temperature: 0.7
