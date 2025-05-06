@@ -1,8 +1,9 @@
+import { AI_CONFIG } from '../config/ai';
 import axios from 'axios';
 
 class AIService {
   constructor() {
-    this.baseURL = '/api'; // Use our backend API endpoint
+    // Remove baseURL since we're using the full path in requests
   }
 
   async makeRequest(messages) {

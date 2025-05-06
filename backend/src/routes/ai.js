@@ -1,13 +1,12 @@
 import express from 'express';
-import auth from '../middleware/auth.js';
 import { AI_CONFIG } from '../config/ai.js';
 
 const router = express.Router();
 
 // @route   POST api/ai/generate
 // @desc    Generate AI response
-// @access  Private
-router.post('/generate', auth, async (req, res) => {
+// @access  Public
+router.post('/generate', async (req, res) => {
   try {
     const { model, input, parameters } = req.body;
     
