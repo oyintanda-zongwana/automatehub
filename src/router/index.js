@@ -2,7 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router';
 import { useAuthStore } from '../stores/auth';
 import Home from '../views/Home.vue';
 import CreateWorkflow from '../views/workflow/CreateWorkflow.vue';
-import AITest from '@/components/AITest.vue';
+import AITest from '../components/AITest.vue';
 
 // Lazy-loaded components
 const Login = () => import('../views/Login.vue');
@@ -134,7 +134,8 @@ const routes = [
   {
     path: '/ai-test',
     name: 'AITest',
-    component: AITest
+    component: AITest,
+    meta: { requiresAuth: true }
   }
 ];
 

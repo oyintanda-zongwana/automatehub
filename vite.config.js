@@ -4,25 +4,20 @@ import path from 'path';
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [vue({
-    template: {
-      compilerOptions: {
-        isCustomElement: (tag) => tag.startsWith('ion-')
-      }
-    }
-  })],
+  plugins: [vue()],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
     },
   },
   server: {
-    port: 3002,
+    port: 3000,
     strictPort: true,
     proxy: {
       '/api': {
         target: 'https://automatehub-pdpd.onrender.com/api',
         changeOrigin: true,
+        secure: false
       },
     },
   },
