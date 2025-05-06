@@ -2,7 +2,6 @@ import { AI_CONFIG } from '../config/ai';
 
 class AIService {
   constructor() {
-    this.apiKey = AI_CONFIG.apiKey;
     this.baseURL = '/api'; // Use our backend API endpoint
   }
 
@@ -37,13 +36,7 @@ class AIService {
       }
 
       const data = await response.json();
-      return {
-        choices: [{
-          message: {
-            content: data.output.text
-          }
-        }]
-      };
+      return data;
     } catch (error) {
       console.error('AI request failed:', error);
       throw error;
