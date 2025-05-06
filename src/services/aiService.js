@@ -1,13 +1,15 @@
 import axios from 'axios';
 
 class AIService {
+  constructor() {
+    this.baseURL = '/api'; // Use our backend API endpoint
+  }
+
   async makeRequest(messages) {
     try {
       const response = await axios.post('/api/ai/generate', {
         model: 'qwen-plus',
-        input: {
-          messages: messages
-        },
+        input: messages, // Send messages directly
         parameters: {
           max_tokens: 2000,
           temperature: 0.7

@@ -11,17 +11,11 @@ router.post('/generate', auth, async (req, res) => {
   try {
     const { model, input, parameters } = req.body;
     
-    // Debug logging
-    console.log('AI Request:', {
-      model: model || AI_CONFIG.defaultModel,
+    console.log('Received AI request:', {
+      model,
       input,
-      parameters: {
-        max_tokens: parameters?.max_tokens || AI_CONFIG.maxTokens,
-        temperature: parameters?.temperature || AI_CONFIG.temperature
-      }
+      parameters
     });
-    console.log('API Key present:', !!AI_CONFIG.apiKey);
-    console.log('Base URL:', AI_CONFIG.baseURL);
 
     const response = await fetch(`${AI_CONFIG.baseURL}/services/aigc/text-generation/generation`, {
       method: 'POST',
@@ -31,9 +25,7 @@ router.post('/generate', auth, async (req, res) => {
       },
       body: JSON.stringify({
         model: model || AI_CONFIG.defaultModel,
-        input: {
-          messages: input
-        },
+        input: input,
         parameters: {
           max_tokens: parameters?.max_tokens || AI_CONFIG.maxTokens,
           temperature: parameters?.temperature || AI_CONFIG.temperature
@@ -41,18 +33,27 @@ router.post('/generate', auth, async (req, res) => {
       })
     });
 
+    console.log('DashScope API response status:', response.status);
+
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      console.error('AI API Error:', {
-        status: response.status,
-        statusText: response.statusText,
-        errorData
-      });
+      console.error('DashScope API error:', errorData);
       throw new Error(`AI API error: ${errorData.message || response.statusText}`);
     }
 
     const data = await response.json();
-    res.json(data);
+    console.log('DashScope API response:', data);
+    
+    // Transform the DashScope response to match the frontend's expected format
+    const transformedResponse = {
+      choices: [{
+        message: {
+          content: data.output?.text || data.output || data.message || 'No response from AI'
+        }
+      }]
+    };
+    
+    res.json(transformedResponse);
   } catch (error) {
     console.error('AI generation error:', error);
     res.status(500).json({ message: error.message || 'Server error' });
