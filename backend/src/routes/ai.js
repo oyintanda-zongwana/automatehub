@@ -10,6 +10,18 @@ const router = express.Router();
 router.post('/generate', auth, async (req, res) => {
   try {
     const { model, input, parameters } = req.body;
+    
+    // Debug logging
+    console.log('AI Request:', {
+      model: model || AI_CONFIG.defaultModel,
+      input,
+      parameters: {
+        max_tokens: parameters?.max_tokens || AI_CONFIG.maxTokens,
+        temperature: parameters?.temperature || AI_CONFIG.temperature
+      }
+    });
+    console.log('API Key present:', !!AI_CONFIG.apiKey);
+    console.log('Base URL:', AI_CONFIG.baseURL);
 
     const response = await fetch(`${AI_CONFIG.baseURL}/services/aigc/text-generation/generation`, {
       method: 'POST',
@@ -31,6 +43,11 @@ router.post('/generate', auth, async (req, res) => {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
+      console.error('AI API Error:', {
+        status: response.status,
+        statusText: response.statusText,
+        errorData
+      });
       throw new Error(`AI API error: ${errorData.message || response.statusText}`);
     }
 
