@@ -19,7 +19,9 @@ router.post('/generate', auth, async (req, res) => {
       },
       body: JSON.stringify({
         model: model || AI_CONFIG.defaultModel,
-        input,
+        input: {
+          messages: input
+        },
         parameters: {
           max_tokens: parameters?.max_tokens || AI_CONFIG.maxTokens,
           temperature: parameters?.temperature || AI_CONFIG.temperature
@@ -40,4 +42,4 @@ router.post('/generate', auth, async (req, res) => {
   }
 });
 
-export default router;
+export default router; 

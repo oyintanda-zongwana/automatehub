@@ -1,28 +1,20 @@
-import OpenAI from 'openai';
-import { AI_CONFIG } from '../config/ai';
+import axios from 'axios';
 
 class AIService {
-  constructor() {
-    this.openai = new OpenAI({
-      apiKey: AI_CONFIG.apiKey,
-      baseURL: AI_CONFIG.baseURL
-    });
-  }
-
   async makeRequest(messages) {
     try {
-      const completion = await this.openai.chat.completions.create({
-        model: AI_CONFIG.defaultModel,
-        messages,
-        max_tokens: AI_CONFIG.maxTokens,
-        temperature: AI_CONFIG.temperature
-      }, {
-        path: '/services/aigc/text-generation/generation'
+      const response = await axios.post('/api/ai/generate', {
+        model: 'qwen-plus',
+        input: messages,
+        parameters: {
+          max_tokens: 2000,
+          temperature: 0.7
+        }
       });
-      return completion;
+      return response.data;
     } catch (error) {
       console.error('AI request failed:', error);
-      throw error;
+      throw new Error(error.response?.data?.message || error.message);
     }
   }
 
