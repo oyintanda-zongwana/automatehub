@@ -287,16 +287,4 @@ async function _executeWorkflow(workflow, triggerData = {}) {
     await workflow.save();
     throw error;
   }
-}
-
-export default {
-  getWorkflows,
-  getWorkflow,
-  createWorkflow,
-  updateWorkflow,
-  deleteWorkflow,
-  toggleWorkflow,
-  executeWorkflow,
-  handleWebhook,
-  handleEvent
-}; 
+} 
