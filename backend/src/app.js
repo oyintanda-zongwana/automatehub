@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
 import workflowRoutes from './routes/Workflows.js';
 import connectionTestRoutes from './routes/connectionTests.js';
+import aiRoutes from './routes/ai.js';
 
 dotenv.config();
 
@@ -23,6 +24,7 @@ mongoose.connect(process.env.MONGODB_URI)
 app.use('/api/auth', authRoutes);
 app.use('/api/workflows', workflowRoutes);
 app.use('/api', connectionTestRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
