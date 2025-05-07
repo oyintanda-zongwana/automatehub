@@ -1,4 +1,5 @@
 import express from 'express';
+import fetch from 'node-fetch';
 import { AI_CONFIG } from '../config/ai.js';
 
 const router = express.Router();
