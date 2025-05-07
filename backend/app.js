@@ -45,6 +45,9 @@ app.use('/api/', limiter);
 app.use('/api/auth', authRoutes);
 app.use('/api/workflows', workflowRoutes);
 
+// Test route to verify backend deployment
+app.get('/api/test', (req, res) => res.json({ message: 'Test route working' }));
+
 // Error handling
 app.use(errorHandler);
 
