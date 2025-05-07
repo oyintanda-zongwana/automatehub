@@ -1,5 +1,5 @@
-import { AI_CONFIG } from '../config/ai';
 import axios from 'axios';
+import { AI_CONFIG } from '../config/ai';
 
 class AIService {
   constructor() {
@@ -8,17 +8,27 @@ class AIService {
 
   async makeRequest(messages) {
     try {
+      console.log('Making AI request with messages:', messages);
       const response = await axios.post('/api/ai/generate', {
-        model: 'qwen-plus',
-        input: messages, // Send messages directly
+        model: AI_CONFIG.defaultModel,
+        input: {
+          messages: messages
+        },
         parameters: {
-          max_tokens: 2000,
-          temperature: 0.7
+          max_tokens: AI_CONFIG.maxTokens,
+          temperature: AI_CONFIG.temperature
         }
       });
+      console.log('AI response:', response.data);
       return response.data;
     } catch (error) {
       console.error('AI request failed:', error);
+      console.error('Error details:', {
+        message: error.message,
+        response: error.response?.data,
+        status: error.response?.status,
+        headers: error.response?.headers
+      });
       throw new Error(error.response?.data?.message || error.message);
     }
   }
