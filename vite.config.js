@@ -15,7 +15,7 @@ export default defineConfig({
     strictPort: true,
     proxy: {
       '/api': {
-        target: 'http://localhost:5000',
+        target: 'https://automatehub-pdpd.onrender.com',
         changeOrigin: true,
         secure: false
       },
