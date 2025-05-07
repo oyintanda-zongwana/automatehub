@@ -1,9 +1,9 @@
-const express = require('express');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-const { body, validationResult } = require('express-validator');
-const User = require('../models/User');
-const auth = require('../middleware/auth');
+import express from 'express';
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import { body, validationResult } from 'express-validator';
+import User from '../models/User.js';
+import { verifyToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -76,18 +76,21 @@ router.post('/register', [
 
 // Login user
 router.post('/login', async (req, res) => {
+  console.log('Login request received:', req.body.email);
   try {
     const { email, password } = req.body;
 
     // Check if user exists
     const user = await User.findOne({ email });
     if (!user) {
+      console.log('Login failed: user not found');
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
     // Verify password
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
+      console.log('Login failed: invalid password');
       return res.status(400).json({ message: 'Invalid credentials' });
     }
 
@@ -112,23 +115,6 @@ router.post('/login', async (req, res) => {
   }
 });
 
-// Verify token middleware
-const verifyToken = (req, res, next) => {
-  const token = req.header('Authorization')?.replace('Bearer ', '');
-
-  if (!token) {
-    return res.status(401).json({ message: 'No token, authorization denied' });
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    req.userId = decoded.userId;
-    next();
-  } catch (error) {
-    res.status(401).json({ message: 'Token is not valid' });
-  }
-};
-
 // Get user profile
 router.get('/profile', verifyToken, async (req, res) => {
   try {
@@ -143,4 +129,4 @@ router.get('/profile', verifyToken, async (req, res) => {
   }
 });
 
-module.exports = router; 
+export default router; 
