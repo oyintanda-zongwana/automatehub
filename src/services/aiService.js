@@ -10,7 +10,9 @@ class AIService {
     try {
       const response = await axios.post('/api/ai/generate', {
         model: AI_CONFIG.defaultModel,
-        input: messages, // Send messages directly
+        input: {
+          messages: messages
+        },
         parameters: {
           max_tokens: AI_CONFIG.maxTokens,
           temperature: AI_CONFIG.temperature

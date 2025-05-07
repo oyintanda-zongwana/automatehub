@@ -10,13 +10,7 @@
 
     <!-- Not authenticated message -->
     <div v-else-if="!isAuthenticated" class="text-center py-4">
-      <p class="text-gray-600 mb-4">Please log in to use the AI service</p>
-      <router-link
-        to="/login"
-        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700"
-      >
-        Sign in
-      </router-link>
+      <p class="text-gray-600 mb-4">Testing mode: Authentication bypassed</p>
     </div>
 
     <!-- AI Service UI -->
