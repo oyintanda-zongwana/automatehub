@@ -13,9 +13,11 @@ const scheduledJobs = new Map();
 // Get all workflows for a user
 export const getWorkflows = async (req, res) => {
   try {
+    console.log('Fetching workflows for user:', req.user?._id);
     const workflows = await Workflow.find({ user: req.user._id });
     res.json(workflows);
   } catch (error) {
+    console.error('Error fetching workflows:', error);
     res.status(500).json({ message: 'Error fetching workflows', error: error.message });
   }
 };
@@ -163,7 +165,7 @@ export const executeWorkflow = async (req, res) => {
     }
 
     // Execute workflow asynchronously
-    executeWorkflow(workflow)
+    _executeWorkflow(workflow)
       .catch(error => console.error('Error executing workflow:', error));
 
     res.json({ message: 'Workflow execution started' });
@@ -248,8 +250,8 @@ function unscheduleWorkflow(workflowId) {
   }
 }
 
-// Execute a workflow
-async function executeWorkflow(workflow, triggerData = {}) {
+// Internal function to execute workflow logic
+async function _executeWorkflow(workflow, triggerData = {}) {
   try {
     // Update last run time
     workflow.lastRun = new Date();
