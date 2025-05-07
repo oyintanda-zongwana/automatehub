@@ -1,45 +1,25 @@
+import axios from 'axios';
 import { AI_CONFIG } from '../config/ai';
 
 class AIService {
   constructor() {
-    this.baseURL = '/api'; // Use our backend API endpoint
+    // Remove baseURL since we're using the full path in requests
   }
 
   async makeRequest(messages) {
     try {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        throw new Error('Authentication required');
-      }
-
-      const response = await fetch(`${this.baseURL}/ai/generate`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          model: AI_CONFIG.defaultModel,
-          input: {
-            messages: messages
-          },
-          parameters: {
-            max_tokens: AI_CONFIG.maxTokens,
-            temperature: AI_CONFIG.temperature
-          }
-        })
+      const response = await axios.post('/api/ai/generate', {
+        model: AI_CONFIG.defaultModel,
+        input: messages, // Send messages directly
+        parameters: {
+          max_tokens: AI_CONFIG.maxTokens,
+          temperature: AI_CONFIG.temperature
+        }
       });
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(`AI API error: ${errorData.message || response.statusText}`);
-      }
-
-      const data = await response.json();
-      return data;
+      return response.data;
     } catch (error) {
       console.error('AI request failed:', error);
-      throw error;
+      throw new Error(error.response?.data?.message || error.message);
     }
   }
 
