@@ -9,6 +9,8 @@
   },
   "dependencies": {
     "core-js": "^3.8.3",
+    "dotenv": "^16.5.0",
+    "node-fetch": "^2.7.0",
     "openai": "^4.97.0",
     "register-service-worker": "^1.7.2",
     "vue": "^3.2.13",

@@ -1,3 +1,4 @@
+import 'dotenv/config';
 import express from 'express';
 import mongoose from 'mongoose';
 import cors from 'cors';
@@ -5,8 +6,8 @@ import morgan from 'morgan';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
 import subscriptionRoutes from './routes/subscription.js';
-import aiRoutes from './routes/ai.js';
 import scheduleTaskReset from './cron/resetTaskUsage.js';
+import aiRoutes from './routes/ai.js';
 
 dotenv.config();
 
@@ -60,4 +61,4 @@ app.use((err, req, res, next) => {
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
-});
+}); 

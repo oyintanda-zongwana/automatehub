@@ -1,13 +1,12 @@
 const fetch = require('node-fetch');
 
-async function testAI() {
+async function testBackendAI() {
   try {
-    console.log('Sending request to AI service...');
+    console.log('Testing backend AI endpoint...');
     const response = await fetch('http://localhost:5000/api/ai/generate', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer sk-7cb9c996d30f47bbbd66196e3b76c07b'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
         model: 'qwen-plus',
@@ -37,5 +36,5 @@ async function testAI() {
   }
 }
 
-console.log('Starting AI test...');
-testAI().then(() => console.log('Test completed')); 
+console.log('Starting backend test...');
+testBackendAI().then(() => console.log('Test completed')); 
