@@ -5,12 +5,12 @@
   "main": "src/index.js",
   "type": "module",
   "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js",
+    "start": "node src/app.js",
+    "dev": "nodemon src/app.js",
     "test": "jest",
     "create-admin": "node src/scripts/createAdmin.js",
-    "build": "npm install",
-    "prestart": "ls -la src/models/"
+    "build": "cd ../frontend && npm install && npm run build && cd ../backend",
+    "prestart": "npm run build"
   },
   "dependencies": {
     "@octokit/rest": "^19.0.7",
