@@ -1,16 +1,16 @@
 import express from 'express';
 import { body, validationResult } from 'express-validator';
 import Workflow from '../models/workflow.js';
-import auth from '../middleware/auth.js';
+import { verifyToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
 // @route   GET api/workflows
 // @desc    Get all workflows for the authenticated user
 // @access  Private
-router.get('/', auth, async (req, res) => {
+router.get('/', verifyToken, async (req, res) => {
   try {
-    const workflows = await Workflow.find({ user: req.user._id });
+    const workflows = await Workflow.find({ creator: req.user._id });
     res.json(workflows);
   } catch (err) {
     console.error('Get workflows error:', err);
@@ -22,7 +22,7 @@ router.get('/', auth, async (req, res) => {
 // @desc    Create a new workflow
 // @access  Private
 router.post('/', [
-  auth,
+  verifyToken,
   body('name', 'Name is required').not().isEmpty(),
   body('steps', 'Steps array is required').isArray()
 ], async (req, res) => {
@@ -52,7 +52,7 @@ router.post('/', [
 // @route   GET api/workflows/:id
 // @desc    Get a specific workflow
 // @access  Private
-router.get('/:id', auth, async (req, res) => {
+router.get('/:id', verifyToken, async (req, res) => {
   try {
     const workflow = await Workflow.findOne({
       _id: req.params.id,
@@ -73,7 +73,7 @@ router.get('/:id', auth, async (req, res) => {
 // @route   PATCH api/workflows/:id
 // @desc    Update a workflow
 // @access  Private
-router.patch('/:id', auth, async (req, res) => {
+router.patch('/:id', verifyToken, async (req, res) => {
   try {
     const workflow = await Workflow.findOne({
       _id: req.params.id,
@@ -100,7 +100,7 @@ router.patch('/:id', auth, async (req, res) => {
 // @route   DELETE api/workflows/:id
 // @desc    Delete a workflow
 // @access  Private
-router.delete('/:id', auth, async (req, res) => {
+router.delete('/:id', verifyToken, async (req, res) => {
   try {
     const workflow = await Workflow.findOneAndDelete({
       _id: req.params.id,
@@ -121,7 +121,7 @@ router.delete('/:id', auth, async (req, res) => {
 // @route   PATCH api/workflows/:id/toggle
 // @desc    Toggle workflow status
 // @access  Private
-router.patch('/:id/toggle', auth, async (req, res) => {
+router.patch('/:id/toggle', verifyToken, async (req, res) => {
   try {
     const workflow = await Workflow.findOne({
       _id: req.params.id,

@@ -1,46 +1,49 @@
 import jwt from 'jsonwebtoken';
 import User from '../models/User.js';
 
-const auth = async (req, res, next) => {
+// Verify JWT token middleware
+export const verifyToken = async (req, res, next) => {
   try {
+    // Get token from header
     const token = req.header('Authorization')?.replace('Bearer ', '');
-    
+
     if (!token) {
-      console.log('No token provided in request');
-      return res.status(401).json({ message: 'No authentication token, access denied' });
+      return res.status(401).json({ message: 'No token, authorization denied' });
     }
 
-    console.log('Token received:', token.substring(0, 10) + '...');
-    
+    // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    console.log('Token decoded successfully:', { userId: decoded.userId });
     
+    // Get user from database
     const user = await User.findById(decoded.userId).select('-password');
     
     if (!user) {
-      console.log('User not found for token:', decoded.userId);
-      return res.status(401).json({ message: 'User not found' });
+      return res.status(401).json({ message: 'Token is not valid' });
     }
 
-    console.log('User authenticated successfully:', user.email);
+    // Add user to request object
     req.user = user;
     next();
   } catch (error) {
-    console.error('Auth middleware error:', {
-      name: error.name,
-      message: error.message,
-      expiredAt: error.expiredAt
-    });
-    
-    if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ message: 'Token has expired' });
-    }
-    if (error.name === 'JsonWebTokenError') {
-      return res.status(401).json({ message: 'Invalid token' });
-    }
-    
-    res.status(401).json({ message: 'Authentication failed' });
+    console.error('Auth middleware error:', error);
+    res.status(401).json({ message: 'Token is not valid' });
   }
 };
 
-export default auth; 
+// Check if user is admin
+export const isAdmin = (req, res, next) => {
+  if (req.user && req.user.role === 'admin') {
+    next();
+  } else {
+    res.status(403).json({ message: 'Access denied. Admin privileges required.' });
+  }
+};
+
+// Check if user is authenticated
+export const isAuthenticated = (req, res, next) => {
+  if (req.user) {
+    next();
+  } else {
+    res.status(401).json({ message: 'Authentication required' });
+  }
+}; 

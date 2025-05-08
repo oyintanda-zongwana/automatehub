@@ -5,7 +5,7 @@ import dotenv from 'dotenv';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import authRoutes from './routes/auth.js';
-import workflowRoutes from './routes/workflowRoutes.js';
+import workflowRoutes from './routes/workflows.js';
 import connectionTestRoutes from './routes/connectionTests.js';
 import aiRoutes from './routes/ai.js';
 
