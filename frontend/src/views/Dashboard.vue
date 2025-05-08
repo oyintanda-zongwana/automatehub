@@ -54,12 +54,43 @@
         </div>
       </div>
     </div>
+
+    <div class="workflow-section">
+      <div class="section-header">
+        <h2>Workflows</h2>
+        <button class="create-button" @click="createWorkflow">
+          Create Workflow
+        </button>
+      </div>
+
+      <div class="workflow-grid">
+        <div
+          v-for="workflow in workflows"
+          :key="workflow._id"
+          class="workflow-card"
+        >
+          <h3>{{ workflow.name }}</h3>
+          <p class="description">{{ workflow.description }}</p>
+          <div class="workflow-stats">
+            <span class="status" :class="workflow.status">{{ workflow.status }}</span>
+            <span>{{ workflow.successCount }} successful runs</span>
+          </div>
+          <div class="workflow-actions">
+            <button @click="editWorkflow(workflow)">Edit</button>
+            <button @click="toggleWorkflow(workflow)" :class="{ 'active': workflow.status === 'active' }">
+              {{ workflow.status === 'active' ? 'Stop' : 'Start' }}
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
 import { ref, onMounted } from "vue";
 import { useStore } from "vuex";
+import { workflowApi } from "@/api";
 
 export default {
   name: "Dashboard",
@@ -72,18 +103,21 @@ export default {
       teamMembers: 0,
     });
     const workspaces = ref([]);
+    const workflows = ref([]);
 
     const fetchDashboardData = async () => {
       try {
-        const [userData, statsData, workspacesData] = await Promise.all([
+        const [userData, statsData, workspacesData, workflowsData] = await Promise.all([
           store.dispatch("user/getProfile"),
           store.dispatch("dashboard/getStats"),
           store.dispatch("workspace/getWorkspaces"),
+          workflowApi.getWorkflows()
         ]);
 
         user.value = userData;
         stats.value = statsData;
         workspaces.value = workspacesData;
+        workflows.value = workflowsData.data;
       } catch (error) {
         console.error("Failed to fetch dashboard data:", error);
       }
@@ -107,15 +141,38 @@ export default {
       // Navigate to workspace settings
     };
 
+    const createWorkflow = () => {
+      // Navigate to workflow creation page
+      router.push('/workflows/create');
+    };
+
+    const editWorkflow = (workflow) => {
+      // Navigate to workflow edit page
+      router.push(`/workflows/${workflow._id}/edit`);
+    };
+
+    const toggleWorkflow = async (workflow) => {
+      try {
+        await workflowApi.toggleWorkflow(workflow._id);
+        await fetchDashboardData(); // Refresh the workflows list
+      } catch (error) {
+        console.error("Failed to toggle workflow:", error);
+      }
+    };
+
     onMounted(fetchDashboardData);
 
     return {
       user,
       stats,
       workspaces,
+      workflows,
       createWorkspace,
       openWorkspace,
       manageWorkspace,
+      createWorkflow,
+      editWorkflow,
+      toggleWorkflow,
     };
   },
 };
@@ -234,5 +291,91 @@ export default {
 
 .workspace-actions button:hover {
   background-color: var(--secondary);
+}
+
+.workflow-section {
+  margin-top: 2rem;
+}
+
+.workflow-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.workflow-card {
+  background: white;
+  border-radius: 8px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.workflow-card h3 {
+  margin: 0 0 0.5rem 0;
+  color: var(--text-primary);
+}
+
+.workflow-card .description {
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.workflow-stats {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+}
+
+.workflow-stats .status {
+  padding: 0.2rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.8rem;
+}
+
+.workflow-stats .status.active {
+  background-color: #e6f4ea;
+  color: #1e7e34;
+}
+
+.workflow-stats .status.inactive {
+  background-color: #f8f9fa;
+  color: #6c757d;
+}
+
+.workflow-stats .status.error {
+  background-color: #fbe9e7;
+  color: #d32f2f;
+}
+
+.workflow-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.workflow-actions button {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.2s;
+}
+
+.workflow-actions button:first-child {
+  background-color: var(--primary);
+  color: white;
+}
+
+.workflow-actions button:last-child {
+  background-color: #f8f9fa;
+  color: var(--text-primary);
+}
+
+.workflow-actions button:last-child.active {
+  background-color: #dc3545;
+  color: white;
 }
 </style>
