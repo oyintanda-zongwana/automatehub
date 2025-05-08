@@ -10,7 +10,7 @@ const router = express.Router();
 // @access  Private
 router.get('/', auth, async (req, res) => {
   try {
-    const workflows = await Workflow.find({ creator: req.user._id });
+    const workflows = await Workflow.find({ user: req.user._id });
     res.json(workflows);
   } catch (err) {
     console.error('Get workflows error:', err);
