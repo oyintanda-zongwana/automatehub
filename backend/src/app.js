@@ -32,11 +32,15 @@ app.use('/api', connectionTestRoutes);
 app.use('/api/ai', aiRoutes);
 
 // Serve static files from the frontend build directory
-app.use(express.static(path.join(__dirname, '../../frontend/dist')));
+const frontendDistPath = path.join(__dirname, '../../../frontend/dist');
+console.log('Frontend dist path:', frontendDistPath);
+app.use(express.static(frontendDistPath));
 
 // Handle SPA routing - send all other requests to index.html
 app.get('*', (req, res) => {
-  res.sendFile(path.join(__dirname, '../../frontend/dist/index.html'));
+  const indexPath = path.join(frontendDistPath, 'index.html');
+  console.log('Serving index.html from:', indexPath);
+  res.sendFile(indexPath);
 });
 
 // Error handling middleware

@@ -10,7 +10,7 @@
     "test": "jest",
     "create-admin": "node src/scripts/createAdmin.js",
     "build": "cd ../frontend && npm install && npm run build && cd ../backend",
-    "prestart": "npm run build"
+    "prestart": "npm run build && node src/debug-paths.js"
   },
   "dependencies": {
     "@octokit/rest": "^19.0.7",
