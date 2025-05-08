@@ -1,6 +1,6 @@
 import axios from 'axios';
 import nodemailer from 'nodemailer';
-import { Configuration, OpenAIApi } from 'openai';
+import OpenAI from 'openai';
 
 // Execute HTTP action
 export const executeHttpAction = async (config) => {
@@ -47,17 +47,23 @@ export const executeEmailAction = async (config) => {
 // Execute AI action
 export const executeAiAction = async (config) => {
   try {
-    // Implement AI action execution based on your AI service
-    // This is a placeholder implementation
-    const response = await axios.post(process.env.AI_SERVICE_URL, {
-      model: config.model,
-      prompt: config.prompt
-    }, {
-      headers: {
-        'Authorization': `Bearer ${process.env.AI_SERVICE_KEY}`
-      }
+    const openai = new OpenAI({
+      apiKey: process.env.OPENAI_API_KEY
     });
-    return response.data;
+
+    const completion = await openai.chat.completions.create({
+      model: config.model || 'gpt-3.5-turbo',
+      messages: [
+        {
+          role: 'user',
+          content: config.prompt
+        }
+      ],
+      max_tokens: config.maxTokens || 1000,
+      temperature: config.temperature || 0.7
+    });
+
+    return completion.choices[0].message.content;
   } catch (error) {
     console.error('AI action execution failed:', error);
     throw error;
