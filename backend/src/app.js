@@ -32,7 +32,7 @@ app.use('/api', connectionTestRoutes);
 app.use('/api/ai', aiRoutes);
 
 // Serve static files from the frontend build directory
-const frontendDistPath = path.join(__dirname, '../../../frontend/dist');
+const frontendDistPath = path.join(__dirname, '../../frontend/dist');
 console.log('Frontend dist path:', frontendDistPath);
 app.use(express.static(frontendDistPath));
 
