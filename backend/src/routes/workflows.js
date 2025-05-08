@@ -38,7 +38,8 @@ router.post('/', [
       name,
       description,
       steps,
-      creator: req.user._id
+      creator: req.user._id,
+      status: 'inactive'
     });
 
     await workflow.save();
