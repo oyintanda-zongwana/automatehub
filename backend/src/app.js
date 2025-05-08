@@ -3,7 +3,7 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import authRoutes from './routes/auth.js';
-import workflowRoutes from './routes/Workflows.js';
+import workflowRoutes from './routes/workflowRoutes.js';
 import connectionTestRoutes from './routes/connectionTests.js';
 import aiRoutes from './routes/ai.js';
 

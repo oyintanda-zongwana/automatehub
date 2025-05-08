@@ -13,9 +13,11 @@ const scheduledJobs = new Map();
 // Get all workflows for a user
 export const getWorkflows = async (req, res) => {
   try {
+    console.log('Fetching workflows for user:', req.user?._id);
     const workflows = await Workflow.find({ user: req.user._id });
     res.json(workflows);
   } catch (error) {
+    console.error('Error fetching workflows:', error);
     res.status(500).json({ message: 'Error fetching workflows', error: error.message });
   }
 };
@@ -68,28 +70,32 @@ export const createWorkflow = async (req, res) => {
 // Update a workflow
 export const updateWorkflow = async (req, res) => {
   try {
+    const workflow = await Workflow.findOne({
+      _id: req.params.id,
+      user: req.user._id
+    });
+
+    if (!workflow) {
+      return res.status(404).json({ message: 'Workflow not found' });
+    }
+
     // Validate workflow data
     const validationError = validateWorkflow(req.body);
     if (validationError) {
       return res.status(400).json({ message: 'Invalid workflow data', error: validationError });
     }
 
-    const workflow = await Workflow.findOneAndUpdate(
-      { _id: req.params.id, user: req.user._id },
-      req.body,
-      { new: true }
-    );
+    // Update workflow
+    Object.assign(workflow, req.body);
+    await workflow.save();
 
-    if (!workflow) {
-      return res.status(404).json({ message: 'Workflow not found' });
-    }
-
-    // Update schedule if needed
+    // Reschedule if needed
     if (workflow.trigger.type === 'schedule') {
+      if (scheduledJobs.has(workflow._id)) {
+        scheduledJobs.get(workflow._id).stop();
+      }
       if (workflow.status === 'active') {
         scheduleWorkflow(workflow);
-      } else {
-        unscheduleWorkflow(workflow._id);
       }
     }
 
@@ -102,7 +108,7 @@ export const updateWorkflow = async (req, res) => {
 // Delete a workflow
 export const deleteWorkflow = async (req, res) => {
   try {
-    const workflow = await Workflow.findOneAndDelete({
+    const workflow = await Workflow.findOne({
       _id: req.params.id,
       user: req.user._id
     });
@@ -111,12 +117,64 @@ export const deleteWorkflow = async (req, res) => {
       return res.status(404).json({ message: 'Workflow not found' });
     }
 
-    // Remove schedule if it exists
-    unscheduleWorkflow(workflow._id);
+    // Stop scheduled job if exists
+    if (scheduledJobs.has(workflow._id)) {
+      scheduledJobs.get(workflow._id).stop();
+      scheduledJobs.delete(workflow._id);
+    }
 
-    res.json({ message: 'Workflow deleted successfully' });
+    await workflow.remove();
+    res.json({ message: 'Workflow deleted' });
   } catch (error) {
     res.status(500).json({ message: 'Error deleting workflow', error: error.message });
+  }
+};
+
+// Execute a workflow
+export const executeWorkflow = async (req, res) => {
+  try {
+    const workflow = await Workflow.findOne({
+      _id: req.params.id,
+      user: req.user._id
+    });
+
+    if (!workflow) {
+      return res.status(404).json({ message: 'Workflow not found' });
+    }
+
+    // Execute workflow actions
+    for (const action of workflow.actions) {
+      try {
+        switch (action.type) {
+          case 'http':
+            await executeHttpAction(action.config);
+            break;
+          case 'email':
+            await executeEmailAction(action.config);
+            break;
+          case 'ai':
+            await executeAiAction(action.config);
+            break;
+        }
+      } catch (error) {
+        workflow.failureCount++;
+        workflow.logs.push({
+          level: 'error',
+          message: `Action execution failed: ${error.message}`,
+          details: error
+        });
+        await workflow.save();
+        throw error;
+      }
+    }
+
+    workflow.successCount++;
+    workflow.lastRun = new Date();
+    await workflow.save();
+
+    res.json({ message: 'Workflow executed successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Error executing workflow', error: error.message });
   }
 };
 
@@ -134,12 +192,12 @@ export const toggleWorkflow = async (req, res) => {
 
     workflow.status = workflow.status === 'active' ? 'inactive' : 'active';
 
-    // Update schedule if it's a scheduled workflow
     if (workflow.trigger.type === 'schedule') {
+      if (scheduledJobs.has(workflow._id)) {
+        scheduledJobs.get(workflow._id).stop();
+      }
       if (workflow.status === 'active') {
         scheduleWorkflow(workflow);
-      } else {
-        unscheduleWorkflow(workflow._id);
       }
     }
 
@@ -150,142 +208,57 @@ export const toggleWorkflow = async (req, res) => {
   }
 };
 
-// Execute a workflow manually
-export const executeWorkflow = async (req, res) => {
+// Handle webhook
+export const handleWebhook = async (req, res) => {
   try {
+    const { path } = req.params;
     const workflow = await Workflow.findOne({
-      _id: req.params.id,
-      user: req.user._id
+      'trigger.config.webhook.path': `/webhook/${path}`
     });
 
     if (!workflow) {
       return res.status(404).json({ message: 'Workflow not found' });
     }
 
-    // Execute workflow asynchronously
-    executeWorkflow(workflow)
-      .catch(error => console.error('Error executing workflow:', error));
-
-    res.json({ message: 'Workflow execution started' });
-  } catch (error) {
-    res.status(500).json({ message: 'Error executing workflow', error: error.message });
-  }
-};
-
-// Handle webhook triggers
-export const handleWebhook = async (req, res) => {
-  try {
-    const [workflowId, secret] = req.params.path.split('/');
-    
-    const workflow = await Workflow.findOne({
-      _id: workflowId,
-      'trigger.type': 'webhook',
-      'trigger.config.webhook.secret': secret,
-      status: 'active'
-    });
-
-    if (!workflow) {
-      return res.status(404).json({ message: 'Webhook not found or inactive' });
-    }
-
-    // Execute workflow asynchronously
-    executeWorkflow(workflow, { webhookData: req.body })
-      .catch(error => console.error('Error executing workflow:', error));
-
-    res.json({ message: 'Webhook received and workflow execution started' });
-  } catch (error) {
-    res.status(500).json({ message: 'Error processing webhook', error: error.message });
-  }
-};
-
-// Handle event triggers
-export const handleEvent = async (eventType, eventData) => {
-  try {
-    const workflows = await Workflow.find({
-      'trigger.type': 'event',
-      'trigger.config.eventType': eventType,
-      status: 'active'
-    });
-
-    // Execute all matching workflows
-    workflows.forEach(workflow => {
-      executeWorkflow(workflow, { eventData })
-        .catch(error => console.error('Error executing workflow:', error));
-    });
-  } catch (error) {
-    console.error('Error handling event:', error);
-  }
-};
-
-// Schedule a workflow
-function scheduleWorkflow(workflow) {
-  // Unschedule existing job if it exists
-  unscheduleWorkflow(workflow._id);
-
-  // Schedule new job
-  if (workflow.trigger.type === 'schedule' && workflow.trigger.config.schedule) {
-    try {
-      const job = cron.schedule(workflow.trigger.config.schedule, () => {
-        executeWorkflow(workflow)
-          .catch(error => console.error('Error executing scheduled workflow:', error));
-      });
-
-      scheduledJobs.set(workflow._id.toString(), job);
-    } catch (error) {
-      console.error('Error scheduling workflow:', error);
-      workflow.status = 'error';
-      workflow.save().catch(error => console.error('Error saving workflow status:', error));
-    }
-  }
-}
-
-// Unschedule a workflow
-function unscheduleWorkflow(workflowId) {
-  const job = scheduledJobs.get(workflowId.toString());
-  if (job) {
-    job.stop();
-    scheduledJobs.delete(workflowId.toString());
-  }
-}
-
-// Execute a workflow
-async function executeWorkflow(workflow, triggerData = {}) {
-  try {
-    // Update last run time
-    workflow.lastRun = new Date();
-    await workflow.save();
-
-    // Execute each action in sequence
-    for (const action of workflow.actions) {
-      try {
-        switch (action.type) {
-          case 'http':
-            await executeHttpAction(action.config, triggerData);
-            break;
-          case 'email':
-            await executeEmailAction(action.config, triggerData);
-            break;
-          case 'ai':
-            await executeAiAction(action.config, triggerData);
-            break;
-        }
-      } catch (error) {
-        console.error(`Error executing ${action.type} action:`, error);
-        throw error;
+    // Verify webhook secret if configured
+    if (workflow.trigger.config.webhook.secret) {
+      const signature = req.headers['x-webhook-signature'];
+      if (!signature || !verifyWebhookSignature(signature, req.body, workflow.trigger.config.webhook.secret)) {
+        return res.status(401).json({ message: 'Invalid webhook signature' });
       }
     }
 
-    // Update success count
-    workflow.successCount += 1;
-    await workflow.save();
+    // Execute workflow
+    await executeWorkflow(workflow);
+    res.json({ message: 'Webhook received and workflow executed' });
   } catch (error) {
-    // Update failure count
-    workflow.failureCount += 1;
-    workflow.status = 'error';
-    await workflow.save();
-    throw error;
+    res.status(500).json({ message: 'Error handling webhook', error: error.message });
   }
-}
+};
+
+// Helper function to schedule a workflow
+const scheduleWorkflow = (workflow) => {
+  if (workflow.trigger.type !== 'schedule' || !workflow.trigger.config.schedule) {
+    return;
+  }
+
+  const job = cron.schedule(workflow.trigger.config.schedule, async () => {
+    try {
+      await executeWorkflow(workflow);
+    } catch (error) {
+      console.error('Scheduled workflow execution failed:', error);
+    }
+  });
+
+  scheduledJobs.set(workflow._id, job);
+};
+
+// Helper function to verify webhook signature
+const verifyWebhookSignature = (signature, payload, secret) => {
+  // Implement webhook signature verification logic here
+  // This is a placeholder - you should implement proper signature verification
+  return true;
+};
 
 export default {
   getWorkflows,
@@ -295,6 +268,5 @@ export default {
   deleteWorkflow,
   toggleWorkflow,
   executeWorkflow,
-  handleWebhook,
-  handleEvent
+  handleWebhook
 }; 

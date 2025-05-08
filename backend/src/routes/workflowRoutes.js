@@ -1,6 +1,6 @@
 import express from 'express';
 import { verifyToken } from '../middleware/auth.js';
-import workflowController from '../controllers/workflowController.js';
+import * as workflowController from '../controllers/workflowController.js';
 
 const router = express.Router();
 
@@ -11,7 +11,7 @@ router.use(verifyToken);
 router.get('/', workflowController.getWorkflows);
 router.get('/:id', workflowController.getWorkflow);
 router.post('/', workflowController.createWorkflow);
-router.put('/:id', workflowController.updateWorkflow);
+router.patch('/:id', workflowController.updateWorkflow);
 router.delete('/:id', workflowController.deleteWorkflow);
 
 // Workflow actions
