@@ -1,4 +1,4 @@
-import Workflow from '../models/Workflow.js';
+import Workflow from '../models/workflow.js';
 import { executeHttpAction, executeEmailAction, executeAiAction } from '../services/actionExecutor.js';
 import { validateWorkflow } from '../utils/validation.js';
 import cron from 'node-cron';

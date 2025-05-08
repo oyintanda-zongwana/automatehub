@@ -2,91 +2,64 @@ import axios from 'axios';
 import nodemailer from 'nodemailer';
 import { Configuration, OpenAIApi } from 'openai';
 
-// HTTP Action Executor
-export const executeHttpAction = async (config, triggerData) => {
+// Execute HTTP action
+export const executeHttpAction = async (config) => {
   try {
-    const { method, url, headers, body, queryParams } = config;
-    
-    // Replace variables in URL, headers, and body with trigger data
-    const processedUrl = replaceVariables(url, triggerData);
-    const processedHeaders = replaceVariables(headers, triggerData);
-    const processedBody = replaceVariables(body, triggerData);
-    const processedQueryParams = replaceVariables(queryParams, triggerData);
-
     const response = await axios({
-      method,
-      url: processedUrl,
-      headers: processedHeaders,
-      data: processedBody,
-      params: processedQueryParams
+      method: config.method || 'GET',
+      url: config.url,
+      headers: config.headers,
+      data: config.body
     });
-
     return response.data;
   } catch (error) {
-    console.error('Error executing HTTP action:', error);
+    console.error('HTTP action execution failed:', error);
     throw error;
   }
 };
 
-// Email Action Executor
-export const executeEmailAction = async (config, triggerData) => {
+// Execute email action
+export const executeEmailAction = async (config) => {
   try {
-    const { to, subject, body, smtpConfig } = config;
-    
-    // Replace variables in email content with trigger data
-    const processedTo = replaceVariables(to, triggerData);
-    const processedSubject = replaceVariables(subject, triggerData);
-    const processedBody = replaceVariables(body, triggerData);
-
-    // Create transporter
     const transporter = nodemailer.createTransport({
-      host: smtpConfig.host,
-      port: smtpConfig.port,
-      secure: smtpConfig.secure,
+      host: process.env.SMTP_HOST,
+      port: process.env.SMTP_PORT,
+      secure: process.env.SMTP_SECURE === 'true',
       auth: {
-        user: smtpConfig.username,
-        pass: smtpConfig.password
+        user: process.env.SMTP_USER,
+        pass: process.env.SMTP_PASS
       }
     });
 
-    // Send email
     await transporter.sendMail({
-      from: smtpConfig.from,
-      to: processedTo,
-      subject: processedSubject,
-      html: processedBody
+      from: process.env.SMTP_FROM,
+      to: config.to,
+      subject: config.subject,
+      text: config.body,
+      html: config.html
     });
   } catch (error) {
-    console.error('Error executing email action:', error);
+    console.error('Email action execution failed:', error);
     throw error;
   }
 };
 
-// AI Action Executor
-export const executeAiAction = async (config, triggerData) => {
+// Execute AI action
+export const executeAiAction = async (config) => {
   try {
-    const { model, prompt, maxTokens, temperature } = config;
-    
-    // Replace variables in prompt with trigger data
-    const processedPrompt = replaceVariables(prompt, triggerData);
-
-    // Initialize OpenAI API
-    const configuration = new Configuration({
-      apiKey: process.env.OPENAI_API_KEY
+    // Implement AI action execution based on your AI service
+    // This is a placeholder implementation
+    const response = await axios.post(process.env.AI_SERVICE_URL, {
+      model: config.model,
+      prompt: config.prompt
+    }, {
+      headers: {
+        'Authorization': `Bearer ${process.env.AI_SERVICE_KEY}`
+      }
     });
-    const openai = new OpenAIApi(configuration);
-
-    // Generate completion
-    const completion = await openai.createCompletion({
-      model,
-      prompt: processedPrompt,
-      max_tokens: maxTokens,
-      temperature
-    });
-
-    return completion.data.choices[0].text;
+    return response.data;
   } catch (error) {
-    console.error('Error executing AI action:', error);
+    console.error('AI action execution failed:', error);
     throw error;
   }
 };
