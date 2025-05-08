@@ -1,11 +1,11 @@
-const nodemailer = require('nodemailer');
-const { Octokit } = require('@octokit/rest');
-const { WebClient } = require('@slack/web-api');
-const JiraClient = require('jira-client');
-const axios = require('axios');
+import nodemailer from 'nodemailer';
+import { Octokit } from '@octokit/rest';
+import { WebClient } from '@slack/web-api';
+import JiraClient from 'jira-client';
+import axios from 'axios';
 
 // Test email connection
-exports.testEmailConnection = async (config) => {
+export const testEmailConnection = async (config) => {
   try {
     const { provider, emailAddress, emailPassword, imapServer, smtpServer } = config;
     
@@ -29,7 +29,7 @@ exports.testEmailConnection = async (config) => {
 };
 
 // Test GitHub connection
-exports.testGitHubConnection = async (config) => {
+export const testGitHubConnection = async (config) => {
   try {
     const { token } = config;
     const octokit = new Octokit({ auth: token });
@@ -43,7 +43,7 @@ exports.testGitHubConnection = async (config) => {
 };
 
 // Test Slack connection
-exports.testSlackConnection = async (config) => {
+export const testSlackConnection = async (config) => {
   try {
     const { token } = config;
     const client = new WebClient(token);
@@ -57,7 +57,7 @@ exports.testSlackConnection = async (config) => {
 };
 
 // Test Jira connection
-exports.testJiraConnection = async (config) => {
+export const testJiraConnection = async (config) => {
   try {
     const { email, token, project } = config;
     const jira = new JiraClient({
@@ -78,7 +78,7 @@ exports.testJiraConnection = async (config) => {
 };
 
 // Test webhook endpoint
-exports.testWebhookEndpoint = async (config) => {
+export const testWebhookEndpoint = async (config) => {
   try {
     const { url, method = 'POST', headers = {}, body = {} } = config;
     
@@ -101,7 +101,7 @@ exports.testWebhookEndpoint = async (config) => {
 };
 
 // Test API endpoint
-exports.testApiEndpoint = async (config) => {
+export const testApiEndpoint = async (config) => {
   try {
     const { url, method = 'GET', headers = {}, body = {} } = config;
     

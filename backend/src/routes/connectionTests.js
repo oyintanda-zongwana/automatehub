@@ -1,6 +1,7 @@
-const express = require('express');
+import express from 'express';
+import * as connectionTestService from '../services/connectionTestService.js';
+
 const router = express.Router();
-const connectionTestService = require('../services/connectionTestService');
 
 // Test email connection
 router.post('/test-email-connection', async (req, res) => {
@@ -62,4 +63,4 @@ router.post('/test-api-endpoint', async (req, res) => {
   }
 });
 
-module.exports = router; 
+export default router; 
