@@ -3,7 +3,7 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import { body, validationResult } from 'express-validator';
 import User from '../models/User.js';
-import auth from '../middleware/auth.js';
+import { verifyToken } from '../middleware/auth.js';
 
 const router = express.Router();
 
@@ -148,7 +148,7 @@ router.post('/login', [
 // @route   GET api/auth/me
 // @desc    Get current user
 // @access  Private
-router.get('/me', auth, async (req, res) => {
+router.get('/me', verifyToken, async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select('-password');
     res.json(user);
@@ -213,7 +213,7 @@ router.post('/reset-password', async (req, res) => {
 // @route   POST api/auth/logout
 // @desc    Logout user
 // @access  Private
-router.post('/logout', auth, async (req, res) => {
+router.post('/logout', verifyToken, async (req, res) => {
   try {
     // Since we're using JWT, we don't need to do anything server-side
     // The client will remove the token
