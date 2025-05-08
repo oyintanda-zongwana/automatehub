@@ -87,6 +87,15 @@ const workflowSchema = new mongoose.Schema({
 // Generate webhook path and secret when creating a new workflow with webhook trigger
 workflowSchema.pre('save', function(next) {
   if (this.isNew && this.trigger.type === 'webhook') {
+    const generateSecret = (length) => {
+      const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let result = '';
+      for (let i = 0; i < length; i++) {
+        result += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return result;
+    };
+
     this.trigger.config.webhook = {
       path: `/webhook/${this._id}/${generateSecret(16)}`,
       secret: generateSecret(32)
@@ -94,16 +103,6 @@ workflowSchema.pre('save', function(next) {
   }
   next();
 });
-
-// Helper function to generate random secrets
-function generateSecret(length) {
-  const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
-  let result = '';
-  for (let i = 0; i < length; i++) {
-    result += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
-  return result;
-}
 
 const Workflow = mongoose.model('Workflow', workflowSchema);
 

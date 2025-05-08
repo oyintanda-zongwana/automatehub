@@ -16,22 +16,50 @@ const userSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: true,
-    minlength: 6
-  },
-  company: {
-    type: String,
-    trim: true
+    required: true
   },
   role: {
     type: String,
     enum: ['user', 'admin'],
     default: 'user'
   },
-  createdAt: {
-    type: Date,
-    default: Date.now
+  company: {
+    type: String,
+    trim: true
+  },
+  subscription: {
+    plan: {
+      type: String,
+      enum: ['free', 'pro', 'enterprise'],
+      default: 'free'
+    },
+    status: {
+      type: String,
+      enum: ['active', 'inactive', 'cancelled'],
+      default: 'active'
+    },
+    startDate: Date,
+    endDate: Date
+  },
+  settings: {
+    notifications: {
+      email: {
+        type: Boolean,
+        default: true
+      },
+      push: {
+        type: Boolean,
+        default: true
+      }
+    },
+    theme: {
+      type: String,
+      enum: ['light', 'dark'],
+      default: 'light'
+    }
   }
+}, {
+  timestamps: true
 });
 
 // Hash password before saving
@@ -53,4 +81,5 @@ userSchema.methods.comparePassword = async function(candidatePassword) {
 };
 
 const User = mongoose.model('User', userSchema);
+
 export default User; 
